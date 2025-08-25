@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { analysisService } from "@/services/analysisService";
 import { Analysis } from "@/types/analysis";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { useLanguage } from "@/contexts/LanguageContext";
 import Loading from "@/components/Loading";
 import Link from "next/link";
 import { ArrowLeft, Download, Copy } from "lucide-react";
@@ -18,6 +19,7 @@ export default function AnalysisDetailPage() {
   const [error, setError] = useState("");
 
   const { isAuthenticated } = useAuthGuard();
+  const { t, language } = useLanguage();
   const { showSuccess, showError } = useToastContext();
 
   const loadAnalysis = useCallback(async () => {
@@ -49,10 +51,10 @@ export default function AnalysisDetailPage() {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        showSuccess("Resultados copiados!");
+        showSuccess(t("messages.copied"));
       })
       .catch(() => {
-        showError("Erro ao copiar");
+        showError(t("messages.copyError"));
       });
   };
 
@@ -68,9 +70,9 @@ export default function AnalysisDetailPage() {
       link.download = `analise-${analysis.id}.json`;
       link.click();
       URL.revokeObjectURL(url);
-      showSuccess("Arquivo baixado!");
+      showSuccess(t("messages.downloaded"));
     } catch {
-      showError("Erro ao baixar arquivo");
+      showError(t("messages.downloadError"));
     }
   };
 
@@ -79,7 +81,7 @@ export default function AnalysisDetailPage() {
   if (error)
     return <div className="text-center text-red-600 py-8">{error}</div>;
   if (!analysis)
-    return <div className="text-center py-8">Análise não encontrada</div>;
+    return <div className="text-center py-8">{t("analysis.notFound")}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -91,16 +93,23 @@ export default function AnalysisDetailPage() {
             className="inline-flex items-center text-indigo-600 hover:text-indigo-500 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Voltar à Análise
+            {t("analysis.back")}
           </Link>
 
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Detalhes da Análise
+                {t("analysis.details")}
               </h1>
               <p className="text-gray-600">
-                Criada em {new Date(analysis.createdAt).toLocaleString("pt-BR")}
+                {t("analysis.createdAt")}{" "}
+                {new Date(analysis.createdAt).toLocaleString(
+                  language === "pt"
+                    ? "pt-BR"
+                    : language === "es"
+                    ? "es-ES"
+                    : "en-US"
+                )}
               </p>
             </div>
 
@@ -113,14 +122,14 @@ export default function AnalysisDetailPage() {
                   className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                 >
                   <Copy className="h-4 w-4 mr-1" />
-                  Copiar
+                  {t("button.copy")}
                 </button>
                 <button
                   onClick={downloadResults}
                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
                 >
                   <Download className="h-4 w-4 mr-1" />
-                  Baixar
+                  {t("button.download")}
                 </button>
               </div>
             )}
@@ -131,10 +140,10 @@ export default function AnalysisDetailPage() {
         {analysis.status === "COMPLETED" && analysis.results ? (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Resultados da Análise
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                {t("analysis.results")}
               </h2>
-              <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm">
+              <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm text-gray-900">
                 {JSON.stringify(analysis.results, null, 2)}
               </pre>
             </div>
@@ -142,9 +151,13 @@ export default function AnalysisDetailPage() {
         ) : (
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
-              <p className="text-gray-600">Status: {analysis.status}</p>
+              <p className="text-gray-600">
+                {t("analysis.status")}: {analysis.status}
+              </p>
               {analysis.error && (
-                <p className="text-red-600 mt-2">Erro: {analysis.error}</p>
+                <p className="text-red-600 mt-2">
+                  {t("analysis.error")}: {analysis.error}
+                </p>
               )}
             </div>
           </div>

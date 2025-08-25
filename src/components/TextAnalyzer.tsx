@@ -6,6 +6,7 @@ import { useToastContext } from "@/contexts/ToastContext";
 import { analysisService } from "@/services/analysisService";
 import { Analysis } from "@/types/analysis";
 import { usePolling } from "@/hooks/usePolling";
+import { notifyStatsUpdate } from "./AnalysisStats";
 import {
   FileText,
   Clock,
@@ -40,6 +41,11 @@ export default function TextAnalyzer() {
       const result = await analysisService.analyzeText(text);
       setAnalysis(result);
 
+      // Se for concluída imediatamente, notificar atualização das estatísticas
+      if (result.status === "COMPLETED" || result.status === "FAILED") {
+        notifyStatsUpdate();
+      }
+
       // Se for assíncrono, inicia o polling
       if (result.status === "PENDING" || result.status === "PROCESSING") {
         startPolling(
@@ -55,6 +61,8 @@ export default function TextAnalyzer() {
                 (updatedAnalysis as Analysis).status === "FAILED"
               ) {
                 stopPolling();
+                // Notificar atualização das estatísticas
+                notifyStatsUpdate();
               }
             }
           }
@@ -189,7 +197,7 @@ export default function TextAnalyzer() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t("analysis.placeholder")}
-            className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
             maxLength={50000}
           />
           <div className="mt-2 text-sm text-gray-500 text-right">
@@ -284,13 +292,13 @@ export default function TextAnalyzer() {
                     <span className="text-gray-600">
                       {t("metrics.characters")}:
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium text-gray-900">
                       {analysis.results.basic.characterCount}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">{t("metrics.words")}:</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-gray-900">
                       {analysis.results.basic.wordCount}
                     </span>
                   </div>
@@ -298,7 +306,7 @@ export default function TextAnalyzer() {
                     <span className="text-gray-600">
                       {t("metrics.sentences")}:
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium text-gray-900">
                       {analysis.results.basic.sentenceCount}
                     </span>
                   </div>
@@ -306,7 +314,7 @@ export default function TextAnalyzer() {
                     <span className="text-gray-600">
                       {t("metrics.paragraphs")}:
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium text-gray-900">
                       {analysis.results.basic.paragraphCount}
                     </span>
                   </div>
@@ -362,7 +370,7 @@ export default function TextAnalyzer() {
                     <span className="text-gray-600">
                       {t("analysis.uniqueWords")}:
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium text-gray-900">
                       {analysis.results.advanced.uniqueWords}
                     </span>
                   </div>
@@ -370,7 +378,7 @@ export default function TextAnalyzer() {
                     <span className="text-gray-600">
                       {t("analysis.lexicalDiversity")}:
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium text-gray-900">
                       {(
                         analysis.results.advanced.lexicalDiversity * 100
                       ).toFixed(1)}

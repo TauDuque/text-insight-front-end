@@ -138,13 +138,13 @@ export default function AnalysisHistory() {
                       </span>
                     </div>
 
-                    <div className="text-sm text-gray-700 mb-2">
+                    <div className="text-sm text-gray-900 mb-2">
                       {item.textPreview.length > 100
                         ? `${item.textPreview.substring(0, 100)}...`
                         : item.textPreview}
                     </div>
 
-                    <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-4 text-xs text-gray-600">
                       {item.processingTime && (
                         <span>
                           Tempo: {formatProcessingTime(item.processingTime)}
@@ -156,7 +156,7 @@ export default function AnalysisHistory() {
                     </div>
 
                     {item.error && (
-                      <div className="mt-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
+                      <div className="mt-2 text-sm text-red-700 bg-red-50 px-3 py-2 rounded">
                         {item.error}
                       </div>
                     )}
@@ -180,7 +180,7 @@ export default function AnalysisHistory() {
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-gray-100 text-gray-900 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Carregando..." : "Carregar mais"}
                 </button>

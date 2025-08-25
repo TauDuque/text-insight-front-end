@@ -150,7 +150,7 @@ export default function QueueStats() {
                 <div className="text-lg font-semibold text-gray-900">
                   {stats.jobsPerMinute.toFixed(1)}
                 </div>
-                <div className="text-sm text-gray-600">Jobs/min</div>
+                <div className="text-sm text-gray-800">Jobs/min</div>
               </div>
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function QueueStats() {
               <div className="text-lg font-semibold text-gray-900">
                 {formatTime(stats.averageProcessingTime)}
               </div>
-              <div className="text-sm text-gray-600">Tempo Médio</div>
+              <div className="text-sm text-gray-800">Tempo Médio</div>
             </div>
           </div>
 
@@ -169,7 +169,7 @@ export default function QueueStats() {
               <div className="text-lg font-semibold text-gray-900">
                 {stats.processingJobs}
               </div>
-              <div className="text-sm text-gray-600">Processando</div>
+              <div className="text-sm text-gray-800">Processando</div>
             </div>
           </div>
         </div>

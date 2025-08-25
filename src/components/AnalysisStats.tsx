@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { analysisService } from "@/services/analysisService";
 import { BarChart3, Users } from "lucide-react";
@@ -22,21 +22,20 @@ interface QueueStats {
   total: number;
 }
 
+// Contexto para notificar atualizações
+const updateStatsEvent = new EventTarget();
+
+export const notifyStatsUpdate = () => {
+  updateStatsEvent.dispatchEvent(new Event("statsUpdated"));
+};
+
 export default function AnalysisStats() {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [queueStats, setQueueStats] = useState<QueueStats | null>(null);
   const [loading, setLoading] = useState(true);
   const { t } = useLanguage();
 
-  useEffect(() => {
-    loadStats();
-
-    // Atualizar estatísticas da fila a cada 30 segundos
-    const interval = setInterval(loadQueueStats, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const [userStatsData, queueStatsData] = await Promise.all([
         analysisService.getUserStats(),
@@ -50,16 +49,35 @@ export default function AnalysisStats() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadQueueStats = async () => {
+  const loadQueueStats = useCallback(async () => {
     try {
       const queueStatsData = await analysisService.getQueueStats();
       setQueueStats(queueStatsData);
     } catch (error) {
       console.error("Erro ao carregar estatísticas da fila:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadStats();
+
+    // Atualizar estatísticas da fila a cada 30 segundos
+    const interval = setInterval(loadQueueStats, 30000);
+
+    // Listener para atualizações em tempo real
+    const handleStatsUpdate = () => {
+      loadStats();
+    };
+
+    updateStatsEvent.addEventListener("statsUpdated", handleStatsUpdate);
+
+    return () => {
+      clearInterval(interval);
+      updateStatsEvent.removeEventListener("statsUpdated", handleStatsUpdate);
+    };
+  }, [loadStats, loadQueueStats]);
 
   if (loading) {
     return (
@@ -129,14 +147,14 @@ export default function AnalysisStats() {
               <div className="text-xl font-bold text-gray-900">
                 {userStats.successRate}%
               </div>
-              <div className="text-sm text-gray-700">{t("stats.overview")}</div>
+              <div className="text-sm text-gray-800">{t("stats.overview")}</div>
             </div>
 
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-xl font-bold text-gray-900">
                 {userStats.averageProcessingTime}ms
               </div>
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-800">
                 {t("stats.averageProcessingTime")}
               </div>
             </div>
