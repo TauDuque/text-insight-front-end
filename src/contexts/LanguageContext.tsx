@@ -9,6 +9,7 @@ interface LanguageContextData {
   setLanguage: (language: Language) => void;
   t: (key: string, variables?: Record<string, string>) => string;
   supportedLanguages: Language[];
+  isLoading: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextData>(
@@ -86,6 +87,38 @@ const translations: Record<string, Record<Language, string>> = {
     pt: "Cancelar",
     es: "Cancelar",
     en: "Cancel",
+  },
+
+  // Autenticação
+  "auth.login": {
+    pt: "Entrar",
+    es: "Iniciar Sesión",
+    en: "Login",
+  },
+  "auth.register": {
+    pt: "Cadastre-se",
+    es: "Registrarse",
+    en: "Register",
+  },
+  "auth.loggingIn": {
+    pt: "Entrando...",
+    es: "Iniciando sesión...",
+    en: "Logging in...",
+  },
+  "auth.loginSubtitle": {
+    pt: "Faça login na sua conta",
+    es: "Inicia sesión en tu cuenta",
+    en: "Sign in to your account",
+  },
+  "auth.noAccount": {
+    pt: "Não tem conta?",
+    es: "¿No tienes cuenta?",
+    en: "Don't have an account?",
+  },
+  "auth.loginError": {
+    pt: "Erro ao fazer login",
+    es: "Error al iniciar sesión",
+    en: "Error logging in",
   },
 
   // Validações
@@ -1154,12 +1187,24 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [language, setLanguageState] = useState<Language>("pt");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Carrega o idioma salvo no localStorage
-    const savedLanguage = localStorage.getItem("language") as Language;
-    if (savedLanguage && ["pt", "es", "en"].includes(savedLanguage)) {
-      setLanguageState(savedLanguage);
+    try {
+      const savedLanguage = localStorage.getItem("language") as Language;
+      console.log("Idioma salvo encontrado:", savedLanguage);
+      if (savedLanguage && ["pt", "es", "en"].includes(savedLanguage)) {
+        setLanguageState(savedLanguage);
+        console.log("Idioma definido como:", savedLanguage);
+      } else {
+        console.log("Usando idioma padrão: pt");
+      }
+    } catch (error) {
+      console.error("Erro ao carregar idioma do localStorage:", error);
+    } finally {
+      setIsLoading(false);
+      console.log("LanguageProvider carregado, isLoading:", false);
     }
   }, []);
 
@@ -1176,6 +1221,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   const t = (key: string, variables?: Record<string, string>): string => {
     let translation = translations[key]?.[language] || key;
 
+    // Debug: verificar se a tradução está sendo encontrada
+    if (!translations[key]) {
+      console.warn(`Tradução não encontrada para a chave: ${key}`);
+    }
+
     // Se houver variáveis para interpolação, substitui os placeholders
     if (variables) {
       Object.entries(variables).forEach(([placeholder, value]) => {
@@ -1188,6 +1238,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const supportedLanguages: Language[] = ["pt", "es", "en"];
 
+  console.log("LanguageProvider renderizando com:", { language, isLoading });
+
   return (
     <LanguageContext.Provider
       value={{
@@ -1195,6 +1247,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
         setLanguage,
         t,
         supportedLanguages,
+        isLoading,
       }}
     >
       {children}
