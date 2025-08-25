@@ -12,13 +12,33 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
+    console.log("🔍 API Interceptor - Token encontrado:", !!token);
+    console.log(
+      "🔍 API Interceptor - Token valor:",
+      token ? token.substring(0, 20) + "..." : "null"
+    );
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log(
+        "🔍 API Interceptor - Header Authorization adicionado:",
+        `Bearer ${token.substring(0, 20)}...`
+      );
+    } else {
+      console.log("🔍 API Interceptor - NENHUM TOKEN ENCONTRADO!");
     }
 
     // Adiciona o header de idioma preferido
     const language = localStorage.getItem("language") || "pt";
     config.headers["Accept-Language"] = language;
+
+    console.log("🔍 API Interceptor - Headers finais:", config.headers);
+
+    // Salvar logs no localStorage para debug
+    const interceptorLog = `🔍 Interceptor - URL: ${
+      config.url
+    } | Token: ${!!token} | Headers: ${JSON.stringify(config.headers)}`;
+    localStorage.setItem("debug_interceptor_log", interceptorLog);
   }
   return config;
 });
