@@ -55,44 +55,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await api.post("/auth/login", data);
       const { user, token } = response.data.data;
 
-      console.log("🔐 Login - Token recebido:", !!token);
-      console.log(
-        "🔐 Login - Token valor:",
-        token ? token.substring(0, 20) + "..." : "null"
-      );
-
-      // Salvar logs no localStorage para debug
-      const loginLog = `🔐 Login - Token recebido: ${!!token} | Valor: ${
-        token ? token.substring(0, 20) + "..." : "null"
-      }`;
-      localStorage.setItem("debug_login_log", loginLog);
-
       setUser(user);
       setToken(token);
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-
-      console.log(
-        "🔐 Login - Token salvo no localStorage:",
-        !!localStorage.getItem("token")
-      );
-      console.log(
-        "🔐 Login - Token verificado:",
-        localStorage.getItem("token")
-          ? localStorage.getItem("token")?.substring(0, 20) + "..."
-          : "null"
-      );
-
-      // Salvar logs no localStorage para debug
-      const storageLog = `🔐 Login - Token salvo: ${!!localStorage.getItem(
-        "token"
-      )} | Verificado: ${
-        localStorage.getItem("token")
-          ? localStorage.getItem("token")?.substring(0, 20) + "..."
-          : "null"
-      }`;
-      localStorage.setItem("debug_storage_log", storageLog);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Erro ao fazer login";
