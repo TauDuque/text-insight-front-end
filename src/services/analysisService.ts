@@ -3,15 +3,9 @@ import { Analysis } from "@/types/analysis";
 
 export class AnalysisService {
   async analyzeText(text: string): Promise<Analysis> {
-    const response = await api.post(
-      "/analyze",
-      { text },
-      {
-        headers: {
-          "X-API-Key": localStorage.getItem("apiKey"),
-        },
-      }
-    );
+    // Análise de texto requer JWT Token (usuário logado)
+    // A análise será associada ao usuário logado
+    const response = await api.post("/analyze", { text });
     return response.data.data;
   }
 
