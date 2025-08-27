@@ -174,6 +174,36 @@ const translations: Record<string, Record<Language, string>> = {
     es: "Procesando...",
     en: "Processing...",
   },
+  "analysis.details": {
+    pt: "Detalhes da Análise",
+    es: "Detalles del Análisis",
+    en: "Analysis Details",
+  },
+  "analysis.createdAt": {
+    pt: "Criada em",
+    es: "Creada en",
+    en: "Created at",
+  },
+  "analysis.results": {
+    pt: "Resultados da Análise",
+    es: "Resultados del Análisis",
+    en: "Analysis Results",
+  },
+  "analysis.status": {
+    pt: "Status",
+    es: "Estado",
+    en: "Status",
+  },
+  "analysis.error": {
+    pt: "Erro",
+    es: "Error",
+    en: "Error",
+  },
+  "analysis.notFound": {
+    pt: "Análise não encontrada",
+    es: "Análisis no encontrado",
+    en: "Analysis not found",
+  },
 
   // Resultados da análise
   "results.basic.title": {
@@ -342,6 +372,11 @@ const translations: Record<string, Record<Language, string>> = {
     pt: "Fechar",
     es: "Cerrar",
     en: "Close",
+  },
+  "button.back": {
+    pt: "Voltar",
+    es: "Volver",
+    en: "Back",
   },
 
   // Seleção de idioma
