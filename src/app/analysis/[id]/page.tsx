@@ -51,10 +51,10 @@ export default function AnalysisDetailPage() {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        showSuccess(t("messages.copied"));
+        showSuccess(t("messages.success"));
       })
       .catch(() => {
-        showError(t("messages.copyError"));
+        showError(t("messages.error"));
       });
   };
 
@@ -70,9 +70,9 @@ export default function AnalysisDetailPage() {
       link.download = `analise-${analysis.id}.json`;
       link.click();
       URL.revokeObjectURL(url);
-      showSuccess(t("messages.downloaded"));
+      showSuccess(t("messages.success"));
     } catch {
-      showError(t("messages.downloadError"));
+      showError(t("messages.error"));
     }
   };
 
@@ -89,11 +89,11 @@ export default function AnalysisDetailPage() {
         {/* Header */}
         <div className="mb-6">
           <Link
-            href="/analysis"
+            href="/dashboard"
             className="inline-flex items-center text-indigo-600 hover:text-indigo-500 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            {t("analysis.back")}
+            {t("button.back")}
           </Link>
 
           <div className="flex justify-between items-start">
@@ -152,7 +152,8 @@ export default function AnalysisDetailPage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
               <p className="text-gray-600">
-                {t("analysis.status")}: {analysis.status}
+                {t("analysis.status")}:{" "}
+                {t(`status.${analysis.status.toLowerCase()}`)}
               </p>
               {analysis.error && (
                 <p className="text-red-600 mt-2">
