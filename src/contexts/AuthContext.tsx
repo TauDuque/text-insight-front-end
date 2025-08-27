@@ -77,13 +77,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const register = async (data: RegisterData) => {
     try {
       const response = await api.post("/auth/register", data);
-      const { user, apiKey } = response.data.data;
+      const { user, apiKey, token } = response.data.data; // Agora recebe token também
 
       setUser(user);
       setApiKey(apiKey);
+      setToken(token); // Seta o token JWT
 
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("apiKey", apiKey);
+      localStorage.setItem("token", token); // Salva o token JWT
     } catch (error: unknown) {
       let errorMessage = "Erro ao criar conta";
 

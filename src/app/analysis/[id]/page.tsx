@@ -24,7 +24,7 @@ export default function AnalysisDetailPage() {
 
   const loadAnalysis = useCallback(async () => {
     try {
-      const data = await analysisService.getAnalysis(analysisId);
+      const data = await analysisService.getAnalysisByJWT(analysisId);
       setAnalysis(data);
     } catch (err: unknown) {
       const errorMessage =
