@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { analysisService } from "@/services/analysisService";
-import { Users, Clock, CheckCircle, XCircle, TrendingUp } from "lucide-react";
+import {
+  Users,
+  Clock,
+  CheckCircle,
+  XCircle,
+  TrendingUp,
+  AlertCircle,
+} from "lucide-react";
 
 interface QueueStats {
   totalJobs: number;
@@ -36,7 +43,6 @@ export default function QueueStats() {
   useEffect(() => {
     loadStats();
 
-    // Atualizar estatísticas a cada 30 segundos
     const interval = setInterval(loadStats, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -76,7 +82,7 @@ export default function QueueStats() {
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            Estatísticas da Fila
+            Status das Análises
           </h2>
           <button
             onClick={loadStats}
@@ -96,7 +102,7 @@ export default function QueueStats() {
                 <div className="text-2xl font-bold text-blue-600">
                   {stats.totalJobs}
                 </div>
-                <div className="text-sm text-blue-800">Total de Jobs</div>
+                <div className="text-sm text-blue-800">Total de Análises</div>
               </div>
             </div>
           </div>
@@ -109,7 +115,20 @@ export default function QueueStats() {
                 <div className="text-2xl font-bold text-yellow-600">
                   {stats.pendingJobs}
                 </div>
-                <div className="text-sm text-yellow-800">Na Fila</div>
+                <div className="text-sm text-yellow-800">Aguardando</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Jobs Processando */}
+          <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+            <div className="flex items-center space-x-3">
+              <TrendingUp className="h-8 w-8 text-indigo-600" />
+              <div>
+                <div className="text-2xl font-bold text-indigo-600">
+                  {stats.processingJobs}
+                </div>
+                <div className="text-sm text-indigo-800">Processando</div>
               </div>
             </div>
           </div>
@@ -126,83 +145,39 @@ export default function QueueStats() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          {/* Tempo Médio de Processamento */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-700">
+                {formatTime(stats.averageProcessingTime)}
+              </div>
+              <div className="text-sm text-gray-600">Tempo Médio</div>
+            </div>
+          </div>
+
+          {/* Jobs por Minuto */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-700">
+                {stats.jobsPerMinute.toFixed(1)}
+              </div>
+              <div className="text-sm text-gray-600">Análises/Minuto</div>
+            </div>
+          </div>
 
           {/* Jobs Falharam */}
           <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-            <div className="flex items-center space-x-3">
-              <XCircle className="h-8 w-8 text-red-600" />
-              <div>
-                <div className="text-2xl font-bold text-red-600">
-                  {stats.failedJobs}
-                </div>
-                <div className="text-sm text-red-800">Falharam</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-600">
+                {stats.failedJobs}
               </div>
+              <div className="text-sm text-red-800">Falharam</div>
             </div>
           </div>
         </div>
-
-        {/* Estatísticas Adicionais */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-50 p-4 rounded-lg border">
-            <div className="flex items-center space-x-3">
-              <TrendingUp className="h-6 w-6 text-gray-600" />
-              <div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {stats.jobsPerMinute.toFixed(1)}
-                </div>
-                <div className="text-sm text-gray-800">Jobs/min</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg border">
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">
-                {formatTime(stats.averageProcessingTime)}
-              </div>
-              <div className="text-sm text-gray-800">Tempo Médio</div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg border">
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">
-                {stats.processingJobs}
-              </div>
-              <div className="text-sm text-gray-800">Processando</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Barra de Progresso Geral */}
-        {stats.totalJobs > 0 && (
-          <div className="mt-6">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Progresso Geral</span>
-              <span>
-                {stats.completedJobs + stats.failedJobs} / {stats.totalJobs}{" "}
-                jobs
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-green-500 h-3 rounded-full transition-all duration-300"
-                style={{
-                  width: `${
-                    ((stats.completedJobs + stats.failedJobs) /
-                      stats.totalJobs) *
-                    100
-                  }%`,
-                }}
-              ></div>
-            </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Concluído: {stats.completedJobs}</span>
-              <span>Falhou: {stats.failedJobs}</span>
-              <span>Pendente: {stats.pendingJobs}</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

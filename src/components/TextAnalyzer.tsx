@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToastContext } from "@/contexts/ToastContext";
 import { analysisService } from "@/services/analysisService";
-import { Analysis } from "@/types/analysis";
+import { Analysis, QueueResponse } from "@/types/analysis";
 import { usePolling } from "@/hooks/usePolling";
 import { notifyStatsUpdate } from "./AnalysisStats";
 import {
@@ -16,15 +16,23 @@ import {
   Copy,
   Download,
   RotateCcw,
+  AlertCircle,
 } from "lucide-react";
 
 export default function TextAnalyzer() {
   const [text, setText] = useState("");
+  const [queueResponse, setQueueResponse] = useState<QueueResponse | null>(
+    null
+  );
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { t } = useLanguage();
   const { showSuccess, showError } = useToastContext();
+
+  // ✅ CONSTANTES ATUALIZADAS
+  const MAX_TEXT_SIZE = 2 * 1024; // 2KB máximo
+  const MAX_TEXT_SIZE_KB = MAX_TEXT_SIZE / 1024;
 
   // Polling para análises assíncronas
   const { startPolling, stopPolling } = usePolling();
@@ -33,41 +41,47 @@ export default function TextAnalyzer() {
     e.preventDefault();
     if (!text.trim()) return;
 
+    // ✅ VALIDAÇÃO DE TAMANHO ATUALIZADA
+    if (text.length > MAX_TEXT_SIZE) {
+      const errorMessage = `Texto muito longo. Máximo permitido: ${MAX_TEXT_SIZE_KB}KB`;
+      setError(errorMessage);
+      showError(errorMessage);
+      return;
+    }
+
     setLoading(true);
     setError("");
     setAnalysis(null);
+    setQueueResponse(null);
 
     try {
-      const result = await analysisService.analyzeText(text);
-      setAnalysis(result);
+      // ✅ NOVO FLUXO: Sempre recebe QueueResponse primeiro
+      const queueResult = await analysisService.analyzeText(text);
+      setQueueResponse(queueResult);
 
-      // Se for concluída imediatamente, notificar atualização das estatísticas
-      if (result.status === "COMPLETED" || result.status === "FAILED") {
-        notifyStatsUpdate();
-      }
+      // ✅ INICIAR POLLING IMEDIATAMENTE (não há mais processamento direto)
+      startPolling(
+        () => analysisService.getAnalysisByQueueId(queueResult.queueId),
+        (updatedAnalysis: unknown) => {
+          if (typeof updatedAnalysis === "object" && updatedAnalysis !== null) {
+            const analysisData = updatedAnalysis as Analysis;
+            setAnalysis(analysisData);
 
-      // Se for assíncrono, inicia o polling
-      if (result.status === "PENDING" || result.status === "PROCESSING") {
-        startPolling(
-          () => analysisService.getAnalysis(result.id),
-          (updatedAnalysis: unknown) => {
+            // ✅ ATUALIZAR ESTADO DA FILA
             if (
-              typeof updatedAnalysis === "object" &&
-              updatedAnalysis !== null
+              analysisData.status === "COMPLETED" ||
+              analysisData.status === "FAILED"
             ) {
-              setAnalysis(updatedAnalysis as Analysis);
-              if (
-                (updatedAnalysis as Analysis).status === "COMPLETED" ||
-                (updatedAnalysis as Analysis).status === "FAILED"
-              ) {
-                stopPolling();
-                // Notificar atualização das estatísticas
-                notifyStatsUpdate();
-              }
+              stopPolling();
+              notifyStatsUpdate();
+              showSuccess("Análise concluída!");
             }
           }
-        );
-      }
+        },
+        2000 // ✅ POLLING A CADA 2 SEGUNDOS
+      );
+
+      showSuccess("Texto enviado para processamento em fila!");
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : t("messages.error");
@@ -98,299 +112,313 @@ export default function TextAnalyzer() {
   const copyResults = () => {
     if (analysis) {
       navigator.clipboard.writeText(JSON.stringify(analysis, null, 2));
-      showSuccess(t("messages.success"));
+      showSuccess("Resultados copiados!");
     }
   };
 
   const downloadResults = () => {
     if (analysis) {
       const dataStr = JSON.stringify(analysis, null, 2);
-      const dataUri =
-        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-      const exportFileDefaultName = `analise-${analysis.id}.json`;
-
-      const linkElement = document.createElement("a");
-      linkElement.setAttribute("href", dataUri);
-      linkElement.setAttribute("download", exportFileDefaultName);
-      linkElement.click();
-
-      showSuccess(t("messages.success"));
+      const dataBlob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `analysis-${analysis.id}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showSuccess("Resultados baixados!");
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "PENDING":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
+        return <Clock className="w-5 h-5 text-yellow-500" />;
       case "PROCESSING":
-        return <Play className="h-5 w-5 text-blue-500" />;
+        return <Play className="w-5 h-5 text-blue-500" />;
       case "COMPLETED":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
       case "FAILED":
-        return <XCircle className="h-5 w-5 text-red-500" />;
+        return <XCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <FileText className="h-5 w-5 text-gray-500" />;
+        return <Clock className="w-5 h-5 text-gray-500" />;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
       case "PENDING":
-        return t("status.pending");
+        return "Aguardando processamento";
       case "PROCESSING":
-        return t("status.processing");
+        return "Processando...";
       case "COMPLETED":
-        return t("status.completed");
+        return "Concluído";
       case "FAILED":
-        return t("status.failed");
+        return "Falhou";
       default:
-        return status;
-    }
-  };
-
-  const getSentimentText = (sentiment: string) => {
-    switch (sentiment) {
-      case "positive":
-        return t("sentiment.positive");
-      case "negative":
-        return t("sentiment.negative");
-      case "neutral":
-        return t("sentiment.neutral");
-      default:
-        return sentiment;
-    }
-  };
-
-  const getReadabilityText = (difficulty: string) => {
-    switch (difficulty) {
-      case "very easy":
-        return t("readability.veryEasy");
-      case "easy":
-        return t("readability.easy");
-      case "fairly easy":
-        return t("readability.fairlyEasy");
-      case "standard":
-        return t("readability.standard");
-      case "fairly difficult":
-        return t("readability.fairlyDifficult");
-      case "difficult":
-        return t("readability.difficult");
-      case "very difficult":
-        return t("readability.veryDifficult");
-      default:
-        return difficulty;
+        return "Desconhecido";
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {t("analysis.title")}
-        </h1>
-        <p className="text-gray-600">{t("analysis.placeholder")}</p>
-      </div>
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <FileText className="w-6 h-6 mr-2" />
+          Análise de Texto
+        </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={t("analysis.placeholder")}
-            className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
-            maxLength={50000}
-          />
-          <div className="mt-2 text-sm text-gray-500 text-right">
-            {text.length}/50.000 {t("metrics.characters")}
+        {/* ✅ NOVO: VALIDAÇÃO DE TAMANHO VISÍVEL */}
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center text-sm text-blue-800">
+            <AlertCircle className="w-4 h-4 mr-2" />
+            <span>
+              <strong>Limite:</strong> Máximo {MAX_TEXT_SIZE_KB}KB por análise
+            </span>
           </div>
+          {text.length > 0 && (
+            <div className="mt-2 text-xs text-blue-600">
+              Tamanho atual: {(text.length / 1024).toFixed(2)}KB
+              {text.length > MAX_TEXT_SIZE && (
+                <span className="text-red-600 font-semibold ml-2">
+                  (Excede o limite!)
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
-        <button
-          type="submit"
-          disabled={loading || !text.trim()}
-          className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? t("analysis.processing") : t("analysis.submit")}
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="mb-6">
+          <div className="mb-4">
+            <label
+              htmlFor="text"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Digite ou cole seu texto:
+            </label>
+            <textarea
+              id="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+              placeholder="Digite ou cole seu texto aqui..."
+              disabled={loading}
+            />
+          </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
+          <button
+            type="submit"
+            disabled={
+              loading || text.length === 0 || text.length > MAX_TEXT_SIZE
+            }
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Enviando..." : "Analisar Texto"}
+          </button>
+        </form>
 
-      {analysis && (
-        <div className="space-y-6">
-          {/* Status da análise */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                {getStatusIcon(analysis.status)}
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {getStatusText(analysis.status)}
-                  </h3>
-                  {analysis.status === "PENDING" && analysis.queuePosition && (
-                    <p className="text-sm text-gray-600">
-                      {t("analysis.queuePosition")}: {analysis.queuePosition}
-                    </p>
-                  )}
-                  {analysis.processingTime && (
-                    <p className="text-sm text-gray-600">
-                      {t("analysis.processingTime")}: {analysis.processingTime}
-                      ms
-                    </p>
-                  )}
-                </div>
+        {/* ✅ NOVO: EXIBIR INFORMAÇÕES DA FILA */}
+        {queueResponse && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center text-green-800">
+              <CheckCircle className="w-5 h-5 mr-2" />
+              <div>
+                <h3 className="font-semibold">Texto enviado para fila!</h3>
+                <p className="text-sm">{queueResponse.message}</p>
+                <p className="text-sm">
+                  Tempo estimado: {queueResponse.estimatedTime} segundos
+                </p>
+                <p className="text-sm">ID da fila: {queueResponse.queueId}</p>
               </div>
+            </div>
+          </div>
+        )}
 
+        {/* ✅ EXIBIR ANÁLISE QUANDO PRONTA */}
+        {analysis && (
+          <div className="bg-gray-50 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                {getStatusIcon(analysis.status)}
+                <span className="ml-2 font-medium text-gray-700">
+                  {getStatusText(analysis.status)}
+                </span>
+              </div>
               <div className="flex space-x-2">
+                <button
+                  onClick={copyResults}
+                  className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-md"
+                  title="Copiar resultados"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={downloadResults}
+                  className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-md"
+                  title="Baixar resultados"
+                >
+                  <Download className="w-4 h-4" />
+                </button>
                 {analysis.status === "FAILED" && (
                   <button
                     onClick={handleRetry}
                     disabled={loading}
-                    className="flex items-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-md"
+                    title="Tentar novamente"
                   >
-                    <RotateCcw className="h-4 w-4" />
-                    <span>{t("button.retry")}</span>
+                    <RotateCcw className="w-4 h-4" />
                   </button>
                 )}
+              </div>
+            </div>
 
-                {analysis.status === "COMPLETED" && (
-                  <>
-                    <button
-                      onClick={copyResults}
-                      className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>{t("button.copy")}</span>
-                    </button>
-                    <button
-                      onClick={downloadResults}
-                      className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span>{t("button.download")}</span>
-                    </button>
-                  </>
+            {analysis.status === "COMPLETED" && analysis.results && (
+              <div className="space-y-6">
+                {/* Análise Básica */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Análise Básica
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-white p-3 rounded-lg border">
+                      <div className="text-2xl font-bold text-indigo-600">
+                        {analysis.results.basic.characterCount}
+                      </div>
+                      <div className="text-sm text-gray-600">Caracteres</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <div className="text-2xl font-bold text-indigo-600">
+                        {analysis.results.basic.wordCount}
+                      </div>
+                      <div className="text-sm text-gray-600">Palavras</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <div className="text-2xl font-bold text-indigo-600">
+                        {analysis.results.basic.sentenceCount}
+                      </div>
+                      <div className="text-sm text-gray-600">Frases</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <div className="text-2xl font-bold text-indigo-600">
+                        {analysis.results.basic.paragraphCount}
+                      </div>
+                      <div className="text-sm text-gray-600">Parágrafos</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Análise Linguística */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Análise Linguística
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg border">
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        Sentimento
+                      </h4>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-indigo-600">
+                          {analysis.results.linguistic.sentiment.classification}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Score: {analysis.results.linguistic.sentiment.score}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border">
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        Legibilidade
+                      </h4>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-indigo-600">
+                          {analysis.results.linguistic.readability.difficulty}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Flesch:{" "}
+                          {analysis.results.linguistic.readability.fleschReadingEase.toFixed(
+                            1
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Palavras-chave */}
+                {analysis.results.linguistic.keywords.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                      Palavras-chave
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {analysis.results.linguistic.keywords.map(
+                        (keyword, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm"
+                          >
+                            {keyword}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
+            )}
+
+            {analysis.status === "FAILED" && analysis.error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center text-red-800">
+                  <XCircle className="w-5 h-5 mr-2" />
+                  <div>
+                    <h3 className="font-semibold">Erro na análise</h3>
+                    <p className="text-sm">{analysis.error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {analysis.status === "PENDING" && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center text-yellow-800">
+                  <Clock className="w-5 h-5 mr-2" />
+                  <div>
+                    <h3 className="font-semibold">Aguardando processamento</h3>
+                    <p className="text-sm">
+                      Sua análise está na fila e será processada em breve.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {analysis.status === "PROCESSING" && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center text-blue-800">
+                  <Play className="w-5 h-5 mr-2" />
+                  <div>
+                    <h3 className="font-semibold">Processando...</h3>
+                    <p className="text-sm">
+                      Sua análise está sendo processada. Aguarde um momento.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center text-red-800">
+              <XCircle className="w-5 h-5 mr-2" />
+              <span>{error}</span>
             </div>
           </div>
-
-          {/* Resultados da análise */}
-          {analysis.status === "COMPLETED" && analysis.results && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Análise Básica */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  {t("results.basic.title")}
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {t("metrics.characters")}:
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {analysis.results.basic.characterCount}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">{t("metrics.words")}:</span>
-                    <span className="font-medium text-gray-900">
-                      {analysis.results.basic.wordCount}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {t("metrics.sentences")}:
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {analysis.results.basic.sentenceCount}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {t("metrics.paragraphs")}:
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {analysis.results.basic.paragraphCount}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Análise Linguística */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  {t("results.linguistic.title")}
-                </h3>
-                <div className="space-y-3">
-                  <div>
-                    <span className="text-gray-600">
-                      {t("metrics.sentiment")}:
-                    </span>
-                    <span
-                      className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                        analysis.results.linguistic.sentiment.classification ===
-                        "positive"
-                          ? "bg-green-100 text-green-800"
-                          : analysis.results.linguistic.sentiment
-                              .classification === "negative"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {getSentimentText(
-                        analysis.results.linguistic.sentiment.classification
-                      )}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">
-                      {t("metrics.readability")}:
-                    </span>
-                    <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {getReadabilityText(
-                        analysis.results.linguistic.readability.difficulty
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Análise Avançada */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  {t("results.advanced.title")}
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {t("analysis.uniqueWords")}:
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {analysis.results.advanced.uniqueWords}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {t("analysis.lexicalDiversity")}:
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {(
-                        analysis.results.advanced.lexicalDiversity * 100
-                      ).toFixed(1)}
-                      %
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

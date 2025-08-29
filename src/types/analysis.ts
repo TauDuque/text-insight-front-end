@@ -19,7 +19,14 @@ export interface AnalysisResult {
     readability: {
       fleschKincaidGrade: number;
       fleschReadingEase: number;
-      difficulty: string;
+      difficulty:
+        | "very easy"
+        | "easy"
+        | "fairly easy"
+        | "standard"
+        | "fairly difficult"
+        | "difficult"
+        | "very difficult";
     };
     keywords: string[];
     entities: {
@@ -35,6 +42,14 @@ export interface AnalysisResult {
     lexicalDiversity: number;
     mostFrequentWords: Array<{ word: string; count: number }>;
   };
+}
+
+// ✅ NOVO: Resposta da fila (sempre retornada primeiro)
+export interface QueueResponse {
+  queueId: string;
+  message: string;
+  estimatedTime: number;
+  textSize: number;
 }
 
 export interface Analysis {
