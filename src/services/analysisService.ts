@@ -2,7 +2,7 @@ import api from "@/lib/api";
 import { Analysis } from "@/types/analysis";
 
 export class AnalysisService {
-  // Análise de texto (usuário logado)
+  // Análise de texto - usuário logado
   async analyzeText(text: string): Promise<Analysis> {
     const response = await api.post("/analyze", { text });
     return response.data.data;
