@@ -20,14 +20,14 @@ const LanguageContext = createContext<LanguageContextData>(
 const translations: Record<string, Record<Language, string>> = {
   // Títulos e cabeçalhos
   "app.title": {
-    pt: "TextInsight API",
-    es: "TextInsight API",
-    en: "TextInsight API",
+    pt: "DocumentInsight API",
+    es: "DocumentInsight API",
+    en: "DocumentInsight API",
   },
   "app.subtitle": {
-    pt: "Análise Inteligente de Texto",
-    es: "Análisis Inteligente de Texto",
-    en: "Intelligent Text Analysis",
+    pt: "Processamento Inteligente de Documentos",
+    es: "Procesamiento Inteligente de Documentos",
+    en: "Intelligent Document Processing",
   },
 
   // Navegação
@@ -36,21 +36,7 @@ const translations: Record<string, Record<Language, string>> = {
     es: "Panel de Control",
     en: "Dashboard",
   },
-  "nav.analysis": {
-    pt: "Análise",
-    es: "Análisis",
-    en: "Analysis",
-  },
-  "nav.history": {
-    pt: "Histórico",
-    es: "Historial",
-    en: "History",
-  },
-  "nav.stats": {
-    pt: "Estatísticas",
-    es: "Estadísticas",
-    en: "Statistics",
-  },
+
   "nav.apiKeys": {
     pt: "Chaves API",
     es: "Claves API",
@@ -153,75 +139,6 @@ const translations: Record<string, Record<Language, string>> = {
     en: "Password must contain at least one number",
   },
 
-  // Análise de texto
-  "analysis.title": {
-    pt: "Analisar Texto",
-    es: "Analizar Texto",
-    en: "Analyze Text",
-  },
-  "analysis.placeholder": {
-    pt: "Digite ou cole o texto que deseja analisar...",
-    es: "Escriba o pegue el texto que desea analizar...",
-    en: "Type or paste the text you want to analyze...",
-  },
-  "analysis.submit": {
-    pt: "Analisar",
-    es: "Analizar",
-    en: "Analyze",
-  },
-  "analysis.processing": {
-    pt: "Processando...",
-    es: "Procesando...",
-    en: "Processing...",
-  },
-  "analysis.details": {
-    pt: "Detalhes da Análise",
-    es: "Detalles del Análisis",
-    en: "Analysis Details",
-  },
-  "analysis.createdAt": {
-    pt: "Criada em",
-    es: "Creada en",
-    en: "Created at",
-  },
-  "analysis.results": {
-    pt: "Resultados da Análise",
-    es: "Resultados del Análisis",
-    en: "Analysis Results",
-  },
-  "analysis.status": {
-    pt: "Status",
-    es: "Estado",
-    en: "Status",
-  },
-  "analysis.error": {
-    pt: "Erro",
-    es: "Error",
-    en: "Error",
-  },
-  "analysis.notFound": {
-    pt: "Análise não encontrada",
-    es: "Análisis no encontrado",
-    en: "Analysis not found",
-  },
-
-  // Resultados da análise
-  "results.basic.title": {
-    pt: "Análise Básica",
-    es: "Análisis Básico",
-    en: "Basic Analysis",
-  },
-  "results.linguistic.title": {
-    pt: "Análise Linguística",
-    es: "Análisis Lingüístico",
-    en: "Linguistic Analysis",
-  },
-  "results.advanced.title": {
-    pt: "Análise Avançada",
-    es: "Análisis Avanzado",
-    en: "Advanced Analysis",
-  },
-
   // Métricas
   "metrics.characters": {
     pt: "Caracteres",
@@ -242,33 +159,6 @@ const translations: Record<string, Record<Language, string>> = {
     pt: "Parágrafos",
     es: "Párrafos",
     en: "Paragraphs",
-  },
-  "metrics.sentiment": {
-    pt: "Sentimento",
-    es: "Sentimiento",
-    en: "Sentiment",
-  },
-  "metrics.readability": {
-    pt: "Legibilidade",
-    es: "Legibilidad",
-    en: "Readability",
-  },
-
-  // Sentimentos
-  "sentiment.positive": {
-    pt: "Positivo",
-    es: "Positivo",
-    en: "Positive",
-  },
-  "sentiment.negative": {
-    pt: "Negativo",
-    es: "Negativo",
-    en: "Negative",
-  },
-  "sentiment.neutral": {
-    pt: "Neutro",
-    es: "Neutral",
-    en: "Neutral",
   },
 
   // Dificuldade de leitura
@@ -499,161 +389,9 @@ const translations: Record<string, Record<Language, string>> = {
     en: "Dashboard",
   },
   "dashboard.welcome": {
-    pt: "Bem-vindo ao TextInsight",
-    es: "Bienvenido a TextInsight",
-    en: "Welcome to TextInsight",
-  },
-  "dashboard.totalAnalyses": {
-    pt: "Total de Análises",
-    es: "Total de Análisis",
-    en: "Total Analyses",
-  },
-  "dashboard.inProgress": {
-    pt: "Em Andamento",
-    es: "En Progreso",
-    en: "In Progress",
-  },
-  "dashboard.completed": {
-    pt: "Concluídas",
-    es: "Completadas",
-    en: "Completed",
-  },
-  "dashboard.failed": {
-    pt: "Falhas",
-    es: "Fallidas",
-    en: "Failed",
-  },
-  "dashboard.pending": {
-    pt: "Pendentes",
-    es: "Pendientes",
-    en: "Pending",
-  },
-  "dashboard.recentAnalyses": {
-    pt: "Análises Recentes",
-    es: "Análisis Recientes",
-    en: "Recent Analyses",
-  },
-  "dashboard.noRecentAnalyses": {
-    pt: "Nenhuma análise recente",
-    es: "Ningún análisis reciente",
-    en: "No recent analyses",
-  },
-  "dashboard.startAnalyzing": {
-    pt: "Começar a Analisar",
-    es: "Comenzar a Analizar",
-    en: "Start Analyzing",
-  },
-
-  // Histórico
-  "history.title": {
-    pt: "Histórico de Análises",
-    es: "Historial de Análisis",
-    en: "Analysis History",
-  },
-  "history.noAnalyses": {
-    pt: "Nenhuma análise encontrada",
-    es: "Ningún análisis encontrado",
-    en: "No analyses found",
-  },
-  "history.filters": {
-    pt: "Filtros",
-    es: "Filtros",
-    en: "Filters",
-  },
-  "history.status": {
-    pt: "Status",
-    es: "Estado",
-    en: "Status",
-  },
-  "history.date": {
-    pt: "Data",
-    es: "Fecha",
-    en: "Date",
-  },
-  "history.text": {
-    pt: "Texto",
-    es: "Texto",
-    en: "Text",
-  },
-  "history.actions": {
-    pt: "Ações",
-    es: "Acciones",
-    en: "Actions",
-  },
-  "history.view": {
-    pt: "Ver",
-    es: "Ver",
-    en: "View",
-  },
-  "history.delete": {
-    pt: "Excluir",
-    es: "Eliminar",
-    en: "Delete",
-  },
-  "history.confirmDelete": {
-    pt: "Confirmar exclusão",
-    es: "Confirmar eliminación",
-    en: "Confirm deletion",
-  },
-  "history.deleteMessage": {
-    pt: "Tem certeza que deseja excluir esta análise?",
-    es: "¿Está seguro de que desea eliminar este análisis?",
-    en: "Are you sure you want to delete this analysis?",
-  },
-  "history.subtitle": {
-    pt: "Visualize e gerencie suas análises anteriores",
-    es: "Visualice y gestione sus análisis anteriores",
-    en: "View and manage your previous analyses",
-  },
-  "history.searchPlaceholder": {
-    pt: "Buscar por conteúdo...",
-    es: "Buscar por contenido...",
-    en: "Search by content...",
-  },
-  "history.allStatuses": {
-    pt: "Todos os status",
-    es: "Todos los estados",
-    en: "All statuses",
-  },
-  "history.startAnalyzing": {
-    pt: "Comece criando sua primeira análise de texto!",
-    es: "¡Comience creando su primer análisis de texto!",
-    en: "Start by creating your first text analysis!",
-  },
-  "history.adjustFilters": {
-    pt: "Tente ajustar os filtros de busca",
-    es: "Intente ajustar los filtros de búsqueda",
-    en: "Try adjusting the search filters",
-  },
-  "history.content": {
-    pt: "Conteúdo",
-    es: "Contenido",
-    en: "Content",
-  },
-  "history.processingTime": {
-    pt: "Tempo",
-    es: "Tiempo",
-    en: "Time",
-  },
-  "history.loadError": {
-    pt: "Erro ao carregar histórico",
-    es: "Error al cargar historial",
-    en: "Error loading history",
-  },
-  "history.refreshSuccess": {
-    pt: "Histórico atualizado!",
-    es: "¡Historial actualizado!",
-    en: "History updated!",
-  },
-  "history.deleteSuccess": {
-    pt: "Análise excluída com sucesso!",
-    es: "¡Análisis eliminado con éxito!",
-    en: "Analysis deleted successfully!",
-  },
-  "history.deleteError": {
-    pt: "Erro ao excluir análise",
-    es: "Error al eliminar análisis",
-    en: "Error deleting analysis",
+    pt: "Bem-vindo ao DocumentInsight",
+    es: "Bienvenido a DocumentInsight",
+    en: "Welcome to DocumentInsight",
   },
 
   // Estatísticas
@@ -662,50 +400,11 @@ const translations: Record<string, Record<Language, string>> = {
     es: "Estadísticas",
     en: "Statistics",
   },
-  "stats.overview": {
-    pt: "Visão Geral",
-    es: "Vista General",
-    en: "Overview",
-  },
-  "stats.analysesByStatus": {
-    pt: "Análises por Status",
-    es: "Análisis por Estado",
-    en: "Analyses by Status",
-  },
-  "stats.analysesByDay": {
-    pt: "Análises por Dia",
-    es: "Análisis por Día",
-    en: "Analyses by Day",
-  },
-  "stats.analysesByMonth": {
-    pt: "Análises por Mês",
-    es: "Análisis por Mes",
-    en: "Analyses by Month",
-  },
-  "stats.averageProcessingTime": {
-    pt: "Tempo Médio de Processamento",
-    es: "Tiempo Promedio de Procesamiento",
-    en: "Average Processing Time",
-  },
-  "stats.totalWords": {
-    pt: "Total de Palavras",
-    es: "Total de Palabras",
-    en: "Total Words",
-  },
-  "stats.totalCharacters": {
-    pt: "Total de Caracteres",
-    es: "Total de Caracteres",
-    en: "Total Characters",
-  },
-  "stats.metrics": {
-    pt: "e Métricas",
-    es: "y Métricas",
-    en: "and Metrics",
-  },
+
   "stats.subtitle": {
-    pt: "Acompanhe o desempenho e uso da plataforma TextInsight",
-    es: "Monitore el rendimiento y uso de la plataforma TextInsight",
-    en: "Track the performance and usage of the TextInsight platform",
+    pt: "Acompanhe o desempenho e uso da plataforma DocumentInsight",
+    es: "Monitore el rendimiento y uso de la plataforma DocumentInsight",
+    en: "Track the performance and usage of the DocumentInsight platform",
   },
   "stats.period": {
     pt: "Período",
@@ -875,9 +574,9 @@ const translations: Record<string, Record<Language, string>> = {
     en: "Manage API Keys",
   },
   "apiKeys.subtitle": {
-    pt: "Crie e gerencie suas chaves de API para acessar o TextInsight",
-    es: "Cree y gestione sus claves API para acceder a TextInsight",
-    en: "Create and manage your API keys to access TextInsight",
+    pt: "Crie e gerencie suas chaves de API para acessar o DocumentInsight",
+    es: "Cree y gestione sus claves API para acceder a DocumentInsight",
+    en: "Create and manage your API keys to access DocumentInsight",
   },
   "apiKeys.importantInfo": {
     pt: "Informações Importantes",

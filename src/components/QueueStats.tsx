@@ -1,15 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { analysisService } from "@/services/analysisService";
-import {
-  Users,
-  Clock,
-  CheckCircle,
-  XCircle,
-  TrendingUp,
-  AlertCircle,
-} from "lucide-react";
+import { documentService } from "@/services/documentService";
+import { Document } from "@/types/document";
+import { Users, Clock, CheckCircle, TrendingUp, FileText } from "lucide-react";
 
 interface QueueStats {
   totalJobs: number;
@@ -21,16 +15,57 @@ interface QueueStats {
   jobsPerMinute: number;
 }
 
+interface DocumentStats {
+  totalDocuments: number;
+  pendingDocuments: number;
+  processingDocuments: number;
+  completedDocuments: number;
+  failedDocuments: number;
+}
+
 export default function QueueStats() {
   const [stats, setStats] = useState<QueueStats | null>(null);
+  const [documentStats, setDocumentStats] = useState<DocumentStats | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const loadStats = async () => {
     try {
       setLoading(true);
-      const response = await analysisService.getQueueStats();
-      setStats(response);
+      const documentsResponse = await documentService.getUserDocuments(1, 1000); // Buscar todos os documentos para estatísticas
+
+      // Criar estatísticas baseadas nos documentos
+      const documents = documentsResponse.documents;
+      const docStats: DocumentStats = {
+        totalDocuments: documents.length,
+        pendingDocuments: documents.filter(
+          (d: Document) => d.status === "PENDING"
+        ).length,
+        processingDocuments: documents.filter(
+          (d: Document) => d.status === "PROCESSING"
+        ).length,
+        completedDocuments: documents.filter(
+          (d: Document) => d.status === "COMPLETED"
+        ).length,
+        failedDocuments: documents.filter(
+          (d: Document) => d.status === "FAILED"
+        ).length,
+      };
+      setDocumentStats(docStats);
+
+      // Criar estatísticas simuladas para compatibilidade
+      const mockStats: QueueStats = {
+        totalJobs: documents.length,
+        pendingJobs: docStats.pendingDocuments,
+        processingJobs: docStats.processingDocuments,
+        completedJobs: docStats.completedDocuments,
+        failedJobs: docStats.failedDocuments,
+        averageProcessingTime: 2500, // Tempo médio simulado
+        jobsPerMinute: 2.5, // Taxa simulada
+      };
+      setStats(mockStats);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Erro ao carregar estatísticas";
@@ -179,6 +214,75 @@ export default function QueueStats() {
           </div>
         </div>
       </div>
+
+      {/* Estatísticas de Documentos */}
+      {documentStats && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Status dos Documentos
+            </h2>
+            <div className="flex items-center space-x-2">
+              <FileText className="h-6 w-6 text-green-600" />
+              <span className="text-sm text-gray-600">
+                Processamento de Arquivos
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Total de Documentos */}
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {documentStats.totalDocuments}
+                </div>
+                <div className="text-sm text-green-800">Total</div>
+              </div>
+            </div>
+
+            {/* Documentos Pendentes */}
+            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {documentStats.pendingDocuments}
+                </div>
+                <div className="text-sm text-yellow-800">Aguardando</div>
+              </div>
+            </div>
+
+            {/* Documentos Processando */}
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {documentStats.processingDocuments}
+                </div>
+                <div className="text-sm text-blue-800">Processando</div>
+              </div>
+            </div>
+
+            {/* Documentos Concluídos */}
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {documentStats.completedDocuments}
+                </div>
+                <div className="text-sm text-green-800">Concluídos</div>
+              </div>
+            </div>
+
+            {/* Documentos Falharam */}
+            <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-600">
+                  {documentStats.failedDocuments}
+                </div>
+                <div className="text-sm text-red-800">Falharam</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

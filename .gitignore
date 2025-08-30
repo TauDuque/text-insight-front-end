@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# documentation (agent-specific, not for version control)
+DOCUMENTACAO_COMPLETA_AGENTE.md
+REFATORACAO_COMPLETA.md
+README_REFATORACAO.md

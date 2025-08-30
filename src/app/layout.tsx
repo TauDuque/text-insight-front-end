@@ -9,7 +9,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TextInsight API",
+  title: "DocumentInsight API",
   description: "Análise inteligente de texto com IA",
 };
 
@@ -31,7 +31,7 @@ export default function RootLayout({
                     <div className="flex justify-between items-center h-16">
                       <div className="flex items-center">
                         <h1 className="text-xl font-semibold text-gray-900">
-                          TextInsight API
+                          DocumentInsight API
                         </h1>
                       </div>
                       <LanguageSelector />
