@@ -4,15 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  Brain,
-  History,
-  User,
-  LogOut,
-  Menu,
-  X,
-  BarChart3,
-} from "lucide-react";
+import { Brain, History, User, LogOut, Menu, X, BarChart3 } from "lucide-react";
 import { useState } from "react";
 
 interface LayoutProps {
@@ -34,7 +26,6 @@ export default function Layout({ children }: LayoutProps) {
   const navigation = [
     { name: t("nav.analysis"), href: "/dashboard", icon: Brain },
     { name: t("nav.history"), href: "/history", icon: History },
-    { name: t("nav.apiKeys"), href: "/api-keys", icon: Key },
     { name: t("nav.stats"), href: "/stats", icon: BarChart3 },
   ];
 

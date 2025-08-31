@@ -5,21 +5,12 @@ export interface User {
   createdAt: string;
 }
 
-export interface ApiKey {
-  id: string;
-  key: string;
-  name: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
 export interface AuthResponse {
   success: boolean;
   message: string;
   data: {
     user: User;
-    token?: string;
-    apiKey?: string;
+    token: string;
   };
 }
 

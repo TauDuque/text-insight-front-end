@@ -49,29 +49,36 @@ export class DocumentService {
   /**
    * Download de documento processado
    */
-  async downloadDocument(
-    documentId: string
-  ): Promise<{ filename: string; path: string }> {
-    const response = await api.get(`/documents/${documentId}/download`);
-    return response.data.data;
+  async downloadDocument(documentId: string): Promise<void> {
+    const response = await api.get(`/documents/${documentId}/download`, {
+      responseType: "blob",
+    });
+
+    // Criar URL do blob e iniciar download
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Pegar nome do arquivo do header Content-Disposition
+    const contentDisposition = response.headers["content-disposition"];
+    const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+    const filename = filenameMatch
+      ? decodeURIComponent(filenameMatch[1])
+      : "document";
+
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   }
 
   /**
    * Buscar documento por ID da fila (para polling)
    */
   async getDocumentByQueueId(queueId: string): Promise<Document> {
-    // Como não temos endpoint direto por queueId, vamos buscar por status
-    // e filtrar pelo jobId que contém o queueId
-    const response = await api.get("/documents");
-    const documents = response.data.data.documents;
-
-    const document = documents.find((doc: Document) => doc.jobId === queueId);
-
-    if (!document) {
-      throw new Error("Documento não encontrado");
-    }
-
-    return document;
+    const response = await api.get(`/documents/job/${queueId}`);
+    return response.data.data;
   }
 
   /**

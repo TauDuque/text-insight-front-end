@@ -21,7 +21,6 @@ interface DocumentHistory {
 }
 
 export default function HistoryPage() {
-  const { user } = useAuth();
   const { isAuthenticated, loading } = useAuthGuard();
   const { t } = useLanguage();
   const [documents, setDocuments] = useState<DocumentHistory[]>([]);
@@ -105,6 +104,15 @@ export default function HistoryPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const handleDownload = async (documentId: string) => {
+    try {
+      await documentService.downloadDocument(documentId);
+    } catch (error) {
+      console.error("Erro ao baixar documento:", error);
+      // TODO: Mostrar mensagem de erro usando o ToastContext
+    }
   };
 
   if (loading) return <Loading />;
@@ -199,7 +207,11 @@ export default function HistoryPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           {doc.status === "COMPLETED" && (
-                            <button className="text-indigo-600 hover:text-indigo-900">
+                            <button
+                              onClick={() => handleDownload(doc.id)}
+                              className="text-indigo-600 hover:text-indigo-900"
+                              title={t("document.download")}
+                            >
                               <Download className="h-4 w-4" />
                             </button>
                           )}
