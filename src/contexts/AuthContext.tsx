@@ -7,7 +7,6 @@ import { User, LoginData, RegisterData } from "@/types/auth";
 interface AuthContextData {
   user: User | null;
   token: string | null;
-  apiKey: string | null;
   login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
@@ -22,7 +21,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,14 +28,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const storedToken = localStorage.getItem("token");
         const storedUser = localStorage.getItem("user");
-        const storedApiKey = localStorage.getItem("apiKey");
 
         if (storedToken && storedUser) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
-          if (storedApiKey) {
-            setApiKey(storedApiKey);
-          }
         }
       } catch (error) {
         console.error("Erro ao carregar dados de autenticação:", error);
@@ -77,15 +71,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const register = async (data: RegisterData) => {
     try {
       const response = await api.post("/auth/register", data);
-      const { user, apiKey, token } = response.data.data; // Agora recebe token também
+      const { user, token } = response.data.data;
 
       setUser(user);
-      setApiKey(apiKey);
-      setToken(token); // Seta o token JWT
+      setToken(token);
 
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("apiKey", apiKey);
-      localStorage.setItem("token", token); // Salva o token JWT
+      localStorage.setItem("token", token);
     } catch (error: unknown) {
       let errorMessage = "Erro ao criar conta";
 
@@ -116,20 +108,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = () => {
     setUser(null);
     setToken(null);
-    setApiKey(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.removeItem("apiKey");
   };
 
-  const isAuthenticated = !!user && (!!token || !!apiKey);
+  const isAuthenticated = !!user && !!token;
 
   return (
     <AuthContext.Provider
       value={{
         user,
         token,
-        apiKey,
         login,
         register,
         logout,

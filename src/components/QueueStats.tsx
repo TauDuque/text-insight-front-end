@@ -55,17 +55,17 @@ export default function QueueStats() {
       };
       setDocumentStats(docStats);
 
-      // Criar estatísticas simuladas para compatibilidade
-      const mockStats: QueueStats = {
+      // Criar estatísticas baseadas nos documentos reais
+      const realStats: QueueStats = {
         totalJobs: documents.length,
         pendingJobs: docStats.pendingDocuments,
         processingJobs: docStats.processingDocuments,
         completedJobs: docStats.completedDocuments,
         failedJobs: docStats.failedDocuments,
-        averageProcessingTime: 2500, // Tempo médio simulado
-        jobsPerMinute: 2.5, // Taxa simulada
+        averageProcessingTime: 0, // TODO: Calcular baseado nos documentos processados
+        jobsPerMinute: 0, // TODO: Calcular baseado no tempo real
       };
-      setStats(mockStats);
+      setStats(realStats);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Erro ao carregar estatísticas";

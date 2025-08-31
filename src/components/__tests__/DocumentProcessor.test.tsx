@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToastContext } from "@/contexts/ToastContext";
 import { usePolling } from "@/hooks/usePolling";
@@ -29,14 +29,18 @@ describe("DocumentProcessor", () => {
       t: (key: string) => key,
       language: "pt",
       isLoading: false,
+      setLanguage: jest.fn(),
+      supportedLanguages: ["pt", "es", "en"],
     });
 
     mockUseToastContext.mockReturnValue({
       showSuccess: jest.fn(),
       showError: jest.fn(),
+      showInfo: jest.fn(),
     });
 
     mockUsePolling.mockReturnValue({
+      isPolling: false,
       startPolling: jest.fn(),
       stopPolling: jest.fn(),
     });

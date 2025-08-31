@@ -7,7 +7,6 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   Brain,
   History,
-  Key,
   User,
   LogOut,
   Menu,

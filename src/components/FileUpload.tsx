@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 import { Upload, File, X, AlertCircle, CheckCircle } from "lucide-react";
 
 interface FileUploadProps {
@@ -32,32 +33,32 @@ export default function FileUpload({
   loading = false,
   error,
 }: FileUploadProps) {
-  const [isDragOver, setIsDragOver] = useState(false);
   const { t } = useLanguage();
-
-  const validateFile = (file: File): string | null => {
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return "Tipo de arquivo não suportado. Formatos aceitos: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX";
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      return `Arquivo muito grande. Máximo permitido: ${
-        MAX_FILE_SIZE / (1024 * 1024)
-      }MB`;
-    }
-
-    return null;
-  };
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileSelect = useCallback(
     (file: File) => {
+      const validateFile = (file: File): string | null => {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+          return t("upload.fileTypeError");
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          return t("upload.fileSizeError", {
+            size: (MAX_FILE_SIZE / (1024 * 1024)).toString(),
+          });
+        }
+
+        return null;
+      };
+
       const validationError = validateFile(file);
       if (validationError) {
         return;
       }
       onFileSelect(file);
     },
-    [onFileSelect]
+    [onFileSelect, t]
   );
 
   const handleDrop = useCallback(
@@ -132,15 +133,13 @@ export default function FileUpload({
 
           <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <div className="text-lg font-medium text-gray-900 mb-2">
-            {isDragOver
-              ? "Solte o arquivo aqui"
-              : "Clique ou arraste um arquivo"}
+            {isDragOver ? t("upload.dragOver") : t("upload.dragDrop")}
           </div>
-          <p className="text-sm text-gray-500">
-            Formatos aceitos: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX
-          </p>
+          <p className="text-sm text-gray-500">{t("upload.acceptedFormats")}</p>
           <p className="text-xs text-gray-400 mt-2">
-            Máximo: {MAX_FILE_SIZE / (1024 * 1024)}MB
+            {t("upload.maxSize", {
+              size: (MAX_FILE_SIZE / (1024 * 1024)).toString(),
+            })}
           </p>
         </div>
       ) : (
@@ -178,7 +177,7 @@ export default function FileUpload({
       {selectedFile && !error && (
         <div className="mt-3 flex items-center space-x-2 text-green-600 text-sm">
           <CheckCircle className="h-4 w-4" />
-          <span>Arquivo selecionado com sucesso</span>
+          <span>{t("upload.fileSelected")}</span>
         </div>
       )}
     </div>

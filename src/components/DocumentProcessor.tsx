@@ -74,14 +74,14 @@ export default function DocumentProcessor() {
               documentData.status === "FAILED"
             ) {
               stopPolling();
-              showSuccess("Documento processado com sucesso!");
+              showSuccess(t("document.success.processed"));
             }
           }
         },
         2000 // Polling a cada 2 segundos
       );
 
-      showSuccess("Documento enviado para processamento em fila!");
+      showSuccess(t("document.success.queued"));
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : t("messages.error");
@@ -100,7 +100,7 @@ export default function DocumentProcessor() {
       const result = await documentService.retryDocument(document.id);
       setDocument(result);
       setError("");
-      showSuccess("Documento enviado para reprocessamento!");
+      showSuccess(t("document.success.retry"));
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : t("messages.error");
@@ -116,7 +116,7 @@ export default function DocumentProcessor() {
     try {
       await documentService.downloadDocument(document.id);
       // TODO: Implementar download real do arquivo
-      showSuccess("Download iniciado!");
+      showSuccess(t("document.success.download"));
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : t("messages.error");
@@ -126,7 +126,7 @@ export default function DocumentProcessor() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    showSuccess("Copiado para a área de transferência!");
+    showSuccess(t("document.success.copied"));
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -155,15 +155,15 @@ export default function DocumentProcessor() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "PENDING":
-        return "Aguardando";
+        return t("document.status.pending");
       case "PROCESSING":
-        return "Processando";
+        return t("document.status.processing");
       case "COMPLETED":
-        return "Concluído";
+        return t("document.status.completed");
       case "FAILED":
-        return "Falhou";
+        return t("document.status.failed");
       default:
-        return "Desconhecido";
+        return t("document.status.unknown");
     }
   };
 
@@ -171,18 +171,15 @@ export default function DocumentProcessor() {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Processador de Documentos
+          {t("document.processor.title")}
         </h1>
-        <p className="text-gray-600">
-          Envie documentos para processamento em fila e obtenha metadados e
-          análises
-        </p>
+        <p className="text-gray-600">{t("document.processor.subtitle")}</p>
       </div>
 
       {/* Upload de Arquivo */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          Selecionar Documento
+          {t("upload.title")}
         </h2>
         <FileUpload
           onFileSelect={handleFileSelect}
@@ -198,7 +195,9 @@ export default function DocumentProcessor() {
             disabled={loading}
             className="mt-4 w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {loading ? "Enviando..." : "Processar Documento"}
+            {loading
+              ? t("document.process.sending")
+              : t("document.process.button")}
           </button>
         )}
       </div>
@@ -209,22 +208,28 @@ export default function DocumentProcessor() {
           <div className="flex items-center space-x-3 mb-4">
             <Clock className="h-6 w-6 text-blue-600" />
             <h3 className="text-lg font-semibold text-blue-800">
-              Documento na Fila
+              {t("document.queue.title")}
             </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="font-medium text-blue-700">Arquivo:</span>
+              <span className="font-medium text-blue-700">
+                {t("document.queue.file")}
+              </span>
               <p className="text-blue-600">{queueResponse.filename}</p>
             </div>
             <div>
-              <span className="font-medium text-blue-700">Tamanho:</span>
+              <span className="font-medium text-blue-700">
+                {t("document.queue.size")}
+              </span>
               <p className="text-blue-600">
                 {formatFileSize(queueResponse.fileSize)}
               </p>
             </div>
             <div>
-              <span className="font-medium text-blue-700">Tempo Estimado:</span>
+              <span className="font-medium text-blue-700">
+                {t("document.queue.estimatedTime")}
+              </span>
               <p className="text-blue-600">{queueResponse.estimatedTime}s</p>
             </div>
           </div>
@@ -243,7 +248,7 @@ export default function DocumentProcessor() {
                   {document.originalName}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Status: {getStatusText(document.status)}
+                  {t("document.status.prefix")} {getStatusText(document.status)}
                 </p>
               </div>
             </div>
@@ -272,27 +277,33 @@ export default function DocumentProcessor() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <h4 className="font-medium text-gray-900 mb-3">
-                Informações do Arquivo
+                {t("document.info.title")}
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tipo:</span>
+                  <span className="text-gray-600">
+                    {t("document.info.type")}
+                  </span>
                   <span className="font-medium">{document.type}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tamanho:</span>
+                  <span className="text-gray-600">
+                    {t("document.info.size")}
+                  </span>
                   <span className="font-medium">
                     {formatFileSize(document.size)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">MIME Type:</span>
+                  <span className="text-gray-600">
+                    {t("document.info.mimeType")}
+                  </span>
                   <span className="font-medium">{document.mimeType}</span>
                 </div>
                 {document.processingTime && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">
-                      Tempo de Processamento:
+                      {t("document.info.processingTime")}
                     </span>
                     <span className="font-medium">
                       {document.processingTime}ms
@@ -305,11 +316,15 @@ export default function DocumentProcessor() {
             {/* Resultados do Processamento */}
             {document.results && (
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Resultados</h4>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  {t("document.results.title")}
+                </h4>
                 <div className="space-y-2 text-sm">
                   {document.results.dimensions && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Dimensões:</span>
+                      <span className="text-gray-600">
+                        {t("document.results.dimensions")}
+                      </span>
                       <span className="font-medium">
                         {document.results.dimensions.width} x{" "}
                         {document.results.dimensions.height}
@@ -318,7 +333,9 @@ export default function DocumentProcessor() {
                   )}
                   {document.results.pageCount && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Páginas:</span>
+                      <span className="text-gray-600">
+                        {t("document.results.pages")}
+                      </span>
                       <span className="font-medium">
                         {document.results.pageCount}
                       </span>
@@ -326,7 +343,9 @@ export default function DocumentProcessor() {
                   )}
                   {document.results.textContent && (
                     <div>
-                      <span className="text-gray-600">Conteúdo Extraído:</span>
+                      <span className="text-gray-600">
+                        {t("document.results.extractedContent")}
+                      </span>
                       <div className="mt-1 p-2 bg-gray-50 rounded text-xs max-h-20 overflow-y-auto">
                         {document.results.textContent}
                       </div>
@@ -336,7 +355,7 @@ export default function DocumentProcessor() {
                         }
                         className="mt-1 text-xs text-blue-600 hover:text-blue-800"
                       >
-                        Copiar conteúdo
+                        {t("document.results.copyContent")}
                       </button>
                     </div>
                   )}
@@ -350,7 +369,7 @@ export default function DocumentProcessor() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex items-center space-x-2 text-red-800">
                 <AlertCircle className="h-5 w-5" />
-                <span className="font-medium">Erro no Processamento:</span>
+                <span className="font-medium">{t("document.error.title")}</span>
               </div>
               <p className="text-red-700 mt-2">{document.error}</p>
             </div>
