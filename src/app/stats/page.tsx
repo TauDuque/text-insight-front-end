@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Document } from "@/types/document";
+import { documentService } from "@/services/documentService";
 
 interface StatsData {
   totalDocuments: number;
@@ -41,57 +42,36 @@ export default function StatsPage() {
         setLoadingStats(true);
         // TODO: Implementar endpoint de estatísticas no backend
         // Por enquanto, vamos buscar documentos e calcular estatísticas básicas
-        const response = await fetch("/api/documents", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const { documents } = await documentService.getUserDocuments();
 
-        if (response.ok) {
-          const data = await response.json();
-          const documents = data.data.documents || [];
+        const stats: StatsData = {
+          totalDocuments: documents.length,
+          completedDocuments: documents.filter(
+            (d: Document) => d.status === "COMPLETED"
+          ).length,
+          failedDocuments: documents.filter(
+            (d: Document) => d.status === "FAILED"
+          ).length,
+          pendingDocuments: documents.filter(
+            (d: Document) => d.status === "PENDING"
+          ).length,
+          processingDocuments: documents.filter(
+            (d: Document) => d.status === "PROCESSING"
+          ).length,
+          averageProcessingTime: 0, // TODO: Calcular baseado nos documentos processados
+          successRate:
+            documents.length > 0
+              ? Math.round(
+                  (documents.filter((d: Document) => d.status === "COMPLETED")
+                    .length /
+                    documents.length) *
+                    100
+                )
+              : 0,
+          documentsPerDay: 0, // TODO: Calcular baseado na data de criação
+        };
 
-          const stats: StatsData = {
-            totalDocuments: documents.length,
-            completedDocuments: documents.filter(
-              (d: Document) => d.status === "COMPLETED"
-            ).length,
-            failedDocuments: documents.filter(
-              (d: Document) => d.status === "FAILED"
-            ).length,
-            pendingDocuments: documents.filter(
-              (d: Document) => d.status === "PENDING"
-            ).length,
-            processingDocuments: documents.filter(
-              (d: Document) => d.status === "PROCESSING"
-            ).length,
-            averageProcessingTime: 0, // TODO: Calcular baseado nos documentos processados
-            successRate:
-              documents.length > 0
-                ? Math.round(
-                    (documents.filter((d: Document) => d.status === "COMPLETED")
-                      .length /
-                      documents.length) *
-                      100
-                  )
-                : 0,
-            documentsPerDay: 0, // TODO: Calcular baseado na data de criação
-          };
-
-          setStats(stats);
-        } else {
-          // Se não conseguir carregar, mostrar estatísticas vazias
-          setStats({
-            totalDocuments: 0,
-            completedDocuments: 0,
-            failedDocuments: 0,
-            pendingDocuments: 0,
-            processingDocuments: 0,
-            averageProcessingTime: 0,
-            successRate: 0,
-            documentsPerDay: 0,
-          });
-        }
+        setStats(stats);
       } catch (error) {
         console.error("Erro ao carregar estatísticas:", error);
         // Em caso de erro, mostrar estatísticas vazias
@@ -140,7 +120,7 @@ export default function StatsPage() {
               id="period"
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
             >
               <option value="7d">{t("stats.last7Days")}</option>
               <option value="30d">{t("stats.last30Days")}</option>
