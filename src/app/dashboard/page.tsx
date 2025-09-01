@@ -3,8 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import TextAnalyzer from "@/components/TextAnalyzer";
-import AnalysisStats from "@/components/AnalysisStats";
+import DocumentProcessor from "@/components/DocumentProcessor";
 import Layout from "@/components/Layout";
 import Loading from "@/components/Loading";
 
@@ -28,13 +27,8 @@ export default function DashboardPage() {
             <p className="mt-2 text-gray-600">{t("app.subtitle")}</p>
           </div>
 
-          {/* Stats Section */}
-          <div className="mb-8">
-            <AnalysisStats />
-          </div>
-
-          {/* Main Analysis Section */}
-          <TextAnalyzer />
+          {/* Main Document Processing Section */}
+          <DocumentProcessor />
         </div>
       </div>
     </Layout>

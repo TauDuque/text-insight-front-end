@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "@/components/Layout";
 import Loading from "@/components/Loading";
 import {
@@ -11,87 +11,89 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Activity,
-  Calendar,
-  Users,
-  Zap,
+  FileText,
 } from "lucide-react";
-import { useToastContext } from "@/contexts/ToastContext";
-import { analysisService } from "@/services/analysisService";
+import { useState, useEffect } from "react";
+import { Document } from "@/types/document";
+import { documentService } from "@/services/documentService";
 
-interface UserStats {
-  total: number;
-  completed: number;
-  failed: number;
-  pending: number;
-  successRate: number;
+interface StatsData {
+  totalDocuments: number;
+  completedDocuments: number;
+  failedDocuments: number;
+  pendingDocuments: number;
+  processingDocuments: number;
   averageProcessingTime: number;
-}
-
-interface QueueStats {
-  waiting: number;
-  active: number;
-  completed: number;
-  failed: number;
-  total: number;
+  successRate: number;
+  documentsPerDay: number;
 }
 
 export default function StatsPage() {
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
-  const [queueStats, setQueueStats] = useState<QueueStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState("7d");
-
-  const { isAuthenticated } = useAuthGuard();
-  const { showError } = useToastContext();
+  const { user } = useAuth();
+  const { isAuthenticated, loading } = useAuthGuard();
   const { t } = useLanguage();
-
-  const loadStats = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [userStatsData, queueStatsData] = await Promise.all([
-        analysisService.getUserStats(),
-        analysisService.getQueueStats(),
-      ]);
-      setUserStats(userStatsData);
-      setQueueStats(queueStatsData);
-    } catch (error) {
-      console.error("Erro ao carregar estatísticas:", error);
-      showError(t("stats.loadError"));
-    } finally {
-      setLoading(false);
-    }
-  }, [showError, t]);
-
-  const loadQueueStats = useCallback(async () => {
-    try {
-      const queueStatsData = await analysisService.getQueueStats();
-      setQueueStats(queueStatsData);
-    } catch (error) {
-      console.error("Erro ao carregar estatísticas da fila:", error);
-    }
-  }, []);
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState("7d");
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadStats();
-      const interval = setInterval(loadQueueStats, 30000); // Atualiza a cada 30s
-      return () => clearInterval(interval);
-    }
-  }, [isAuthenticated, timeRange, loadStats, loadQueueStats]);
+    const loadStats = async () => {
+      try {
+        setLoadingStats(true);
+        // TODO: Implementar endpoint de estatísticas no backend
+        // Por enquanto, vamos buscar documentos e calcular estatísticas básicas
+        const { documents } = await documentService.getUserDocuments();
 
-  const formatTime = (ms: number) => {
-    if (ms < 1000) return `${ms}ms`;
-    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-    return `${(ms / 60000).toFixed(1)}min`;
-  };
+        const stats: StatsData = {
+          totalDocuments: documents.length,
+          completedDocuments: documents.filter(
+            (d: Document) => d.status === "COMPLETED"
+          ).length,
+          failedDocuments: documents.filter(
+            (d: Document) => d.status === "FAILED"
+          ).length,
+          pendingDocuments: documents.filter(
+            (d: Document) => d.status === "PENDING"
+          ).length,
+          processingDocuments: documents.filter(
+            (d: Document) => d.status === "PROCESSING"
+          ).length,
+          averageProcessingTime: 0, // TODO: Calcular baseado nos documentos processados
+          successRate:
+            documents.length > 0
+              ? Math.round(
+                  (documents.filter((d: Document) => d.status === "COMPLETED")
+                    .length /
+                    documents.length) *
+                    100
+                )
+              : 0,
+          documentsPerDay: 0, // TODO: Calcular baseado na data de criação
+        };
 
-  const getSuccessRateColor = (rate: number) => {
-    if (rate >= 90) return "text-green-600";
-    if (rate >= 70) return "text-yellow-600";
-    return "text-red-600";
-  };
+        setStats(stats);
+      } catch (error) {
+        console.error("Erro ao carregar estatísticas:", error);
+        // Em caso de erro, mostrar estatísticas vazias
+        setStats({
+          totalDocuments: 0,
+          completedDocuments: 0,
+          failedDocuments: 0,
+          pendingDocuments: 0,
+          processingDocuments: 0,
+          averageProcessingTime: 0,
+          successRate: 0,
+          documentsPerDay: 0,
+        });
+      } finally {
+        setLoadingStats(false);
+      }
+    };
 
+    loadStats();
+  }, [selectedPeriod]);
+
+  if (loading) return <Loading />;
   if (!isAuthenticated) return null;
 
   return (
@@ -101,280 +103,219 @@ export default function StatsPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
-              {t("stats.title")} {t("global.and")} {t("stats.metrics")}
+              {t("stats.title")}
             </h1>
             <p className="mt-2 text-gray-600">{t("stats.subtitle")}</p>
           </div>
 
-          {/* Time Range Selector */}
+          {/* Period Selector */}
           <div className="mb-6">
-            <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">
-                {t("stats.period")}:
-              </label>
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="7d">{t("stats.last7Days")}</option>
-                <option value="30d">{t("stats.last30Days")}</option>
-                <option value="90d">{t("stats.last90Days")}</option>
-                <option value="1y">{t("stats.lastYear")}</option>
-              </select>
-            </div>
+            <label
+              htmlFor="period"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              {t("stats.period")}
+            </label>
+            <select
+              id="period"
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
+            >
+              <option value="7d">{t("stats.last7Days")}</option>
+              <option value="30d">{t("stats.last30Days")}</option>
+              <option value="90d">{t("stats.last90Days")}</option>
+              <option value="1y">{t("stats.lastYear")}</option>
+            </select>
           </div>
 
-          {loading ? (
-            <Loading />
-          ) : (
-            <div className="space-y-6">
-              {/* User Statistics */}
-              {userStats && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center mb-6">
-                    <Users className="h-6 w-6 text-indigo-600 mr-3" />
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {t("stats.yourStats")}
-                    </h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Total Analyses */}
-                    <div className="bg-blue-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <BarChart3 className="h-8 w-8 text-blue-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-blue-600">
-                            {t("dashboard.totalAnalyses")}
-                          </p>
-                          <p className="text-2xl font-bold text-blue-900">
-                            {userStats.total}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Success Rate */}
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <CheckCircle className="h-8 w-8 text-green-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-green-600">
-                            {t("stats.successRate")}
-                          </p>
-                          <p
-                            className={`text-2xl font-bold ${getSuccessRateColor(
-                              userStats.successRate
-                            )}`}
-                          >
-                            {userStats.successRate.toFixed(1)}%
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Average Processing Time */}
-                    <div className="bg-purple-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <Zap className="h-8 w-8 text-purple-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-purple-600">
-                            {t("stats.averageProcessingTime")}
-                          </p>
-                          <p className="text-2xl font-bold text-purple-900">
-                            {formatTime(userStats.averageProcessingTime)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Pending Analyses */}
-                    <div className="bg-yellow-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <Clock className="h-8 w-8 text-yellow-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-yellow-600">
-                            {t("stats.inProcessing")}
-                          </p>
-                          <p className="text-2xl font-bold text-yellow-900">
-                            {userStats.pending}
-                          </p>
-                        </div>
+          {/* Stats Content */}
+          <div className="bg-white shadow rounded-lg">
+            {loadingStats ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">{t("global.loading")}</p>
+              </div>
+            ) : stats ? (
+              <div className="p-6">
+                {/* Overview Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <div className="bg-blue-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <FileText className="h-8 w-8 text-blue-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-blue-600">
+                          {t("stats.totalDocuments")}
+                        </p>
+                        <p className="text-2xl font-bold text-blue-900">
+                          {stats.totalDocuments}
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Detailed Breakdown */}
-                  <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-green-600">
-                        {userStats.completed}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {t("dashboard.completed")}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-red-600">
-                        {userStats.failed}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {t("dashboard.failed")}
+                  <div className="bg-green-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-8 w-8 text-green-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-green-600">
+                          {t("stats.completedDocuments")}
+                        </p>
+                        <p className="text-2xl font-bold text-green-900">
+                          {stats.completedDocuments}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-yellow-600">
-                        {userStats.pending}
+                  </div>
+
+                  <div className="bg-yellow-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <Clock className="h-8 w-8 text-yellow-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-yellow-600">
+                          {t("stats.pendingDocuments")}
+                        </p>
+                        <p className="text-2xl font-bold text-yellow-900">
+                          {stats.pendingDocuments}
+                        </p>
                       </div>
-                      <div className="text-sm text-gray-600">
-                        {t("dashboard.pending")}
+                    </div>
+                  </div>
+
+                  <div className="bg-red-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <XCircle className="h-8 w-8 text-red-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-red-600">
+                          {t("stats.failedDocuments")}
+                        </p>
+                        <p className="text-2xl font-bold text-red-900">
+                          {stats.failedDocuments}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
 
-              {/* Queue Statistics */}
-              {queueStats && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center mb-6">
-                    <Activity className="h-6 w-6 text-indigo-600 mr-3" />
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {t("stats.queueStatus")}
-                    </h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Waiting */}
-                    <div className="bg-yellow-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <Clock className="h-8 w-8 text-yellow-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-yellow-600">
-                            {t("stats.inQueue")}
-                          </p>
-                          <p className="text-2xl font-bold text-yellow-900">
-                            {queueStats.waiting}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Active */}
-                    <div className="bg-blue-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <TrendingUp className="h-8 w-8 text-blue-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-blue-600">
-                            {t("status.processing")}
-                          </p>
-                          <p className="text-2xl font-bold text-blue-900">
-                            {queueStats.active}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Completed */}
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <CheckCircle className="h-8 w-8 text-green-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-green-600">
-                            {t("status.completed")}
-                          </p>
-                          <p className="text-2xl font-bold text-green-900">
-                            {queueStats.completed}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Failed */}
-                    <div className="bg-red-50 rounded-lg p-4">
-                      <div className="flex items-center">
-                        <XCircle className="h-8 w-8 text-red-600" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-red-600">
-                            {t("status.failed")}
-                          </p>
-                          <p className="text-2xl font-bold text-red-900">
-                            {queueStats.failed}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Queue Summary */}
-                  <div className="mt-8 bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Calendar className="h-5 w-5 text-gray-500 mr-2" />
-                        <span className="text-sm font-medium text-gray-700">
-                          {t("stats.totalInQueue")}: {queueStats.total}
+                {/* Performance Metrics */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      {t("stats.performanceMetrics")}
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">
+                          {t("stats.successRate")}
+                        </span>
+                        <span className="text-lg font-semibold text-gray-900">
+                          {stats.successRate}%
                         </span>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {t("stats.updatedAt")}{" "}
-                        {new Date().toLocaleTimeString("pt-BR")}
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">
+                          {t("stats.averageProcessingTime")}
+                        </span>
+                        <span className="text-lg font-semibold text-gray-900">
+                          {stats.averageProcessingTime}s
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">
+                          {t("stats.documentsPerDay")}
+                        </span>
+                        <span className="text-lg font-semibold text-gray-900">
+                          {stats.documentsPerDay}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      {t("stats.queueStatus")}
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">
+                          {t("stats.inQueue")}
+                        </span>
+                        <span className="text-lg font-semibold text-gray-900">
+                          {stats.pendingDocuments}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">
+                          {t("stats.inProcessing")}
+                        </span>
+                        <span className="text-lg font-semibold text-gray-900">
+                          {stats.processingDocuments}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">
+                          {t("stats.totalInQueue")}
+                        </span>
+                        <span className="text-lg font-semibold text-gray-900">
+                          {stats.pendingDocuments + stats.processingDocuments}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
 
-              {/* Performance Insights */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  {t("stats.performanceInsights")}
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">
-                      {t("stats.recommendations")}
-                    </h3>
-                    <ul className="space-y-2 text-sm text-gray-700">
-                      <li className="flex items-start">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        {t("stats.recommendation1")}
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        {t("stats.recommendation2")}
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        {t("stats.recommendation3")}
-                      </li>
-                    </ul>
+                {/* Recommendations */}
+                <div className="mt-8 bg-indigo-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-indigo-900 mb-4">
+                    {t("stats.recommendations")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-sm text-indigo-800">
+                      <p className="font-medium mb-2">
+                        💡 {t("stats.recommendation1")}
+                      </p>
+                    </div>
+                    <div className="text-sm text-indigo-800">
+                      <p className="font-medium mb-2">
+                        📊 {t("stats.recommendation2")}
+                      </p>
+                    </div>
+                    <div className="text-sm text-indigo-800">
+                      <p className="font-medium mb-2">
+                        🔍 {t("stats.recommendation3")}
+                      </p>
+                    </div>
                   </div>
+                </div>
 
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">
-                      {t("stats.usageTips")}
-                    </h3>
-                    <ul className="space-y-2 text-sm text-gray-700">
-                      <li className="flex items-start">
-                        <Zap className="h-4 w-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                        {t("stats.tip1")}
-                      </li>
-                      <li className="flex items-start">
-                        <Zap className="h-4 w-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                        {t("stats.tip2")}
-                      </li>
-                      <li className="flex items-start">
-                        <Zap className="h-4 w-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                        {t("stats.tip3")}
-                      </li>
-                    </ul>
+                {/* Usage Tips */}
+                <div className="mt-6 bg-green-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-green-900 mb-4">
+                    {t("stats.usageTips")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-sm text-green-800">
+                      <p className="font-medium mb-2">⚡ {t("stats.tip1")}</p>
+                    </div>
+                    <div className="text-sm text-green-800">
+                      <p className="font-medium mb-2">🔄 {t("stats.tip2")}</p>
+                    </div>
+                    <div className="text-sm text-green-800">
+                      <p className="font-medium mb-2">✅ {t("stats.tip3")}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="p-8 text-center">
+                <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {t("stats.loadError")}
+                </h3>
+                <p className="text-gray-600">{t("global.tryAgain")}</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>

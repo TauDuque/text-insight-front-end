@@ -33,7 +33,6 @@ api.interceptors.response.use(
       if (typeof window !== "undefined") {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        localStorage.removeItem("apiKey");
         window.location.href = "/login";
       }
     }

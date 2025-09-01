@@ -20,22 +20,17 @@ const LanguageContext = createContext<LanguageContextData>(
 const translations: Record<string, Record<Language, string>> = {
   // Títulos e cabeçalhos
   "app.title": {
-    pt: "TextInsight API",
-    es: "TextInsight API",
-    en: "TextInsight API",
+    pt: "Document Insight",
+    es: "Document Insight",
+    en: "Document Insight",
   },
   "app.subtitle": {
-    pt: "Análise Inteligente de Texto",
-    es: "Análisis Inteligente de Texto",
-    en: "Intelligent Text Analysis",
+    pt: "Processamento Inteligente de Documentos",
+    es: "Procesamiento Inteligente de Documentos",
+    en: "Intelligent Document Processing",
   },
 
   // Navegação
-  "nav.dashboard": {
-    pt: "Dashboard",
-    es: "Panel de Control",
-    en: "Dashboard",
-  },
   "nav.analysis": {
     pt: "Análise",
     es: "Análisis",
@@ -46,15 +41,22 @@ const translations: Record<string, Record<Language, string>> = {
     es: "Historial",
     en: "History",
   },
-  "nav.stats": {
-    pt: "Estatísticas",
-    es: "Estadísticas",
-    en: "Statistics",
+  "nav.dashboard": {
+    pt: "Dashboard",
+    es: "Panel de Control",
+    en: "Dashboard",
   },
+
   "nav.apiKeys": {
     pt: "Chaves API",
     es: "Claves API",
     en: "API Keys",
+  },
+
+  "nav.stats": {
+    pt: "Estatísticas",
+    es: "Estadísticas",
+    en: "Statistics",
   },
 
   // Formulários
@@ -153,75 +155,6 @@ const translations: Record<string, Record<Language, string>> = {
     en: "Password must contain at least one number",
   },
 
-  // Análise de texto
-  "analysis.title": {
-    pt: "Analisar Texto",
-    es: "Analizar Texto",
-    en: "Analyze Text",
-  },
-  "analysis.placeholder": {
-    pt: "Digite ou cole o texto que deseja analisar...",
-    es: "Escriba o pegue el texto que desea analizar...",
-    en: "Type or paste the text you want to analyze...",
-  },
-  "analysis.submit": {
-    pt: "Analisar",
-    es: "Analizar",
-    en: "Analyze",
-  },
-  "analysis.processing": {
-    pt: "Processando...",
-    es: "Procesando...",
-    en: "Processing...",
-  },
-  "analysis.details": {
-    pt: "Detalhes da Análise",
-    es: "Detalles del Análisis",
-    en: "Analysis Details",
-  },
-  "analysis.createdAt": {
-    pt: "Criada em",
-    es: "Creada en",
-    en: "Created at",
-  },
-  "analysis.results": {
-    pt: "Resultados da Análise",
-    es: "Resultados del Análisis",
-    en: "Analysis Results",
-  },
-  "analysis.status": {
-    pt: "Status",
-    es: "Estado",
-    en: "Status",
-  },
-  "analysis.error": {
-    pt: "Erro",
-    es: "Error",
-    en: "Error",
-  },
-  "analysis.notFound": {
-    pt: "Análise não encontrada",
-    es: "Análisis no encontrado",
-    en: "Analysis not found",
-  },
-
-  // Resultados da análise
-  "results.basic.title": {
-    pt: "Análise Básica",
-    es: "Análisis Básico",
-    en: "Basic Analysis",
-  },
-  "results.linguistic.title": {
-    pt: "Análise Linguística",
-    es: "Análisis Lingüístico",
-    en: "Linguistic Analysis",
-  },
-  "results.advanced.title": {
-    pt: "Análise Avançada",
-    es: "Análisis Avanzado",
-    en: "Advanced Analysis",
-  },
-
   // Métricas
   "metrics.characters": {
     pt: "Caracteres",
@@ -242,33 +175,6 @@ const translations: Record<string, Record<Language, string>> = {
     pt: "Parágrafos",
     es: "Párrafos",
     en: "Paragraphs",
-  },
-  "metrics.sentiment": {
-    pt: "Sentimento",
-    es: "Sentimiento",
-    en: "Sentiment",
-  },
-  "metrics.readability": {
-    pt: "Legibilidade",
-    es: "Legibilidad",
-    en: "Readability",
-  },
-
-  // Sentimentos
-  "sentiment.positive": {
-    pt: "Positivo",
-    es: "Positivo",
-    en: "Positive",
-  },
-  "sentiment.negative": {
-    pt: "Negativo",
-    es: "Negativo",
-    en: "Negative",
-  },
-  "sentiment.neutral": {
-    pt: "Neutro",
-    es: "Neutral",
-    en: "Neutral",
   },
 
   // Dificuldade de leitura
@@ -499,161 +405,61 @@ const translations: Record<string, Record<Language, string>> = {
     en: "Dashboard",
   },
   "dashboard.welcome": {
-    pt: "Bem-vindo ao TextInsight",
-    es: "Bienvenido a TextInsight",
-    en: "Welcome to TextInsight",
-  },
-  "dashboard.totalAnalyses": {
-    pt: "Total de Análises",
-    es: "Total de Análisis",
-    en: "Total Analyses",
-  },
-  "dashboard.inProgress": {
-    pt: "Em Andamento",
-    es: "En Progreso",
-    en: "In Progress",
-  },
-  "dashboard.completed": {
-    pt: "Concluídas",
-    es: "Completadas",
-    en: "Completed",
-  },
-  "dashboard.failed": {
-    pt: "Falhas",
-    es: "Fallidas",
-    en: "Failed",
-  },
-  "dashboard.pending": {
-    pt: "Pendentes",
-    es: "Pendientes",
-    en: "Pending",
-  },
-  "dashboard.recentAnalyses": {
-    pt: "Análises Recentes",
-    es: "Análisis Recientes",
-    en: "Recent Analyses",
-  },
-  "dashboard.noRecentAnalyses": {
-    pt: "Nenhuma análise recente",
-    es: "Ningún análisis reciente",
-    en: "No recent analyses",
-  },
-  "dashboard.startAnalyzing": {
-    pt: "Começar a Analisar",
-    es: "Comenzar a Analizar",
-    en: "Start Analyzing",
+    pt: "Bem-vindo ao Document Insight",
+    es: "Bienvenido a Document Insight",
+    en: "Welcome to Document Insight",
   },
 
   // Histórico
   "history.title": {
-    pt: "Histórico de Análises",
-    es: "Historial de Análisis",
-    en: "Analysis History",
+    pt: "Histórico de Documentos",
+    es: "Historial de Documentos",
+    en: "Document History",
   },
-  "history.noAnalyses": {
-    pt: "Nenhuma análise encontrada",
-    es: "Ningún análisis encontrado",
-    en: "No analyses found",
+  "history.subtitle": {
+    pt: "Visualize todos os documentos processados e seus status",
+    es: "Visualice todos los documentos procesados y sus estados",
+    en: "View all processed documents and their status",
   },
-  "history.filters": {
-    pt: "Filtros",
-    es: "Filtros",
-    en: "Filters",
+  "history.noDocuments": {
+    pt: "Nenhum documento encontrado",
+    es: "Ningún documento encontrado",
+    en: "No documents found",
   },
-  "history.status": {
+  "history.noDocumentsSubtitle": {
+    pt: "Comece a processar documentos para ver o histórico aqui",
+    es: "Comience a procesar documentos para ver el historial aquí",
+    en: "Start processing documents to see history here",
+  },
+  "history.table.document": {
+    pt: "Documento",
+    es: "Documento",
+    en: "Document",
+  },
+  "history.table.status": {
     pt: "Status",
     es: "Estado",
     en: "Status",
   },
-  "history.date": {
-    pt: "Data",
-    es: "Fecha",
-    en: "Date",
+  "history.table.size": {
+    pt: "Tamanho",
+    es: "Tamaño",
+    en: "Size",
   },
-  "history.text": {
-    pt: "Texto",
-    es: "Texto",
-    en: "Text",
+  "history.table.created": {
+    pt: "Criado em",
+    es: "Creado en",
+    en: "Created at",
   },
-  "history.actions": {
+  "history.table.completed": {
+    pt: "Concluído em",
+    es: "Completado en",
+    en: "Completed at",
+  },
+  "history.table.actions": {
     pt: "Ações",
     es: "Acciones",
     en: "Actions",
-  },
-  "history.view": {
-    pt: "Ver",
-    es: "Ver",
-    en: "View",
-  },
-  "history.delete": {
-    pt: "Excluir",
-    es: "Eliminar",
-    en: "Delete",
-  },
-  "history.confirmDelete": {
-    pt: "Confirmar exclusão",
-    es: "Confirmar eliminación",
-    en: "Confirm deletion",
-  },
-  "history.deleteMessage": {
-    pt: "Tem certeza que deseja excluir esta análise?",
-    es: "¿Está seguro de que desea eliminar este análisis?",
-    en: "Are you sure you want to delete this analysis?",
-  },
-  "history.subtitle": {
-    pt: "Visualize e gerencie suas análises anteriores",
-    es: "Visualice y gestione sus análisis anteriores",
-    en: "View and manage your previous analyses",
-  },
-  "history.searchPlaceholder": {
-    pt: "Buscar por conteúdo...",
-    es: "Buscar por contenido...",
-    en: "Search by content...",
-  },
-  "history.allStatuses": {
-    pt: "Todos os status",
-    es: "Todos los estados",
-    en: "All statuses",
-  },
-  "history.startAnalyzing": {
-    pt: "Comece criando sua primeira análise de texto!",
-    es: "¡Comience creando su primer análisis de texto!",
-    en: "Start by creating your first text analysis!",
-  },
-  "history.adjustFilters": {
-    pt: "Tente ajustar os filtros de busca",
-    es: "Intente ajustar los filtros de búsqueda",
-    en: "Try adjusting the search filters",
-  },
-  "history.content": {
-    pt: "Conteúdo",
-    es: "Contenido",
-    en: "Content",
-  },
-  "history.processingTime": {
-    pt: "Tempo",
-    es: "Tiempo",
-    en: "Time",
-  },
-  "history.loadError": {
-    pt: "Erro ao carregar histórico",
-    es: "Error al cargar historial",
-    en: "Error loading history",
-  },
-  "history.refreshSuccess": {
-    pt: "Histórico atualizado!",
-    es: "¡Historial actualizado!",
-    en: "History updated!",
-  },
-  "history.deleteSuccess": {
-    pt: "Análise excluída com sucesso!",
-    es: "¡Análisis eliminado con éxito!",
-    en: "Analysis deleted successfully!",
-  },
-  "history.deleteError": {
-    pt: "Erro ao excluir análise",
-    es: "Error al eliminar análisis",
-    en: "Error deleting analysis",
   },
 
   // Estatísticas
@@ -662,50 +468,10 @@ const translations: Record<string, Record<Language, string>> = {
     es: "Estadísticas",
     en: "Statistics",
   },
-  "stats.overview": {
-    pt: "Visão Geral",
-    es: "Vista General",
-    en: "Overview",
-  },
-  "stats.analysesByStatus": {
-    pt: "Análises por Status",
-    es: "Análisis por Estado",
-    en: "Analyses by Status",
-  },
-  "stats.analysesByDay": {
-    pt: "Análises por Dia",
-    es: "Análisis por Día",
-    en: "Analyses by Day",
-  },
-  "stats.analysesByMonth": {
-    pt: "Análises por Mês",
-    es: "Análisis por Mes",
-    en: "Analyses by Month",
-  },
-  "stats.averageProcessingTime": {
-    pt: "Tempo Médio de Processamento",
-    es: "Tiempo Promedio de Procesamiento",
-    en: "Average Processing Time",
-  },
-  "stats.totalWords": {
-    pt: "Total de Palavras",
-    es: "Total de Palabras",
-    en: "Total Words",
-  },
-  "stats.totalCharacters": {
-    pt: "Total de Caracteres",
-    es: "Total de Caracteres",
-    en: "Total Characters",
-  },
-  "stats.metrics": {
-    pt: "e Métricas",
-    es: "y Métricas",
-    en: "and Metrics",
-  },
   "stats.subtitle": {
-    pt: "Acompanhe o desempenho e uso da plataforma TextInsight",
-    es: "Monitore el rendimiento y uso de la plataforma TextInsight",
-    en: "Track the performance and usage of the TextInsight platform",
+    pt: "Acompanhe o desempenho e uso da plataforma Document Insight",
+    es: "Monitore el rendimiento y uso de la plataforma Document Insight",
+    en: "Track the performance and usage of the Document Insight platform",
   },
   "stats.period": {
     pt: "Período",
@@ -732,15 +498,45 @@ const translations: Record<string, Record<Language, string>> = {
     es: "Último año",
     en: "Last year",
   },
-  "stats.yourStats": {
-    pt: "Suas Estatísticas",
-    es: "Sus Estadísticas",
-    en: "Your Statistics",
+  "stats.totalDocuments": {
+    pt: "Total de Documentos",
+    es: "Total de Documentos",
+    en: "Total Documents",
+  },
+  "stats.completedDocuments": {
+    pt: "Documentos Concluídos",
+    es: "Documentos Completados",
+    en: "Completed Documents",
+  },
+  "stats.failedDocuments": {
+    pt: "Documentos Falharam",
+    es: "Documentos Fallaron",
+    en: "Failed Documents",
+  },
+  "stats.pendingDocuments": {
+    pt: "Documentos Pendentes",
+    es: "Documentos Pendientes",
+    en: "Pending Documents",
+  },
+  "stats.performanceMetrics": {
+    pt: "Métricas de Performance",
+    es: "Métricas de Rendimiento",
+    en: "Performance Metrics",
   },
   "stats.successRate": {
     pt: "Taxa de Sucesso",
     es: "Tasa de Éxito",
     en: "Success Rate",
+  },
+  "stats.averageProcessingTime": {
+    pt: "Tempo Médio de Processamento",
+    es: "Tiempo Promedio de Procesamiento",
+    en: "Average Processing Time",
+  },
+  "stats.documentsPerDay": {
+    pt: "Documentos por Dia",
+    es: "Documentos por Día",
+    en: "Documents per Day",
   },
   "stats.inProcessing": {
     pt: "Em Processamento",
@@ -819,6 +615,11 @@ const translations: Record<string, Record<Language, string>> = {
   },
 
   // Chaves API
+  "apiKeys.createdAt": {
+    pt: "Criada em",
+    es: "Creada en",
+    en: "Created at",
+  },
   "apiKeys.title": {
     pt: "Chaves API",
     es: "Claves API",
@@ -875,9 +676,9 @@ const translations: Record<string, Record<Language, string>> = {
     en: "Manage API Keys",
   },
   "apiKeys.subtitle": {
-    pt: "Crie e gerencie suas chaves de API para acessar o TextInsight",
-    es: "Cree y gestione sus claves API para acceder a TextInsight",
-    en: "Create and manage your API keys to access TextInsight",
+    pt: "Crie e gerencie suas chaves de API para acessar o Document Insight",
+    es: "Cree y gestione sus claves API para acceder a Document Insight",
+    en: "Create and manage your API keys to access Document Insight",
   },
   "apiKeys.importantInfo": {
     pt: "Informações Importantes",
@@ -983,6 +784,252 @@ const translations: Record<string, Record<Language, string>> = {
     pt: "Erro ao copiar API Key",
     es: "Error al copiar clave API",
     en: "Error copying API key",
+  },
+
+  // Processamento de documentos
+  "document.processor.title": {
+    pt: "Processador de Documentos",
+    es: "Procesador de Documentos",
+    en: "Document Processor",
+  },
+  "document.processor.subtitle": {
+    pt: "Envie documentos para processamento em fila e obtenha metadados e análises",
+    es: "Envíe documentos para procesamiento en cola y obtenga metadatos y análisis",
+    en: "Send documents for queue processing and get metadata and analysis",
+  },
+  "document.select.title": {
+    pt: "Selecionar Documento",
+    es: "Seleccionar Documento",
+    en: "Select Document",
+  },
+  "document.process.button": {
+    pt: "Processar Documento",
+    es: "Procesar Documento",
+    en: "Process Document",
+  },
+  "document.process.sending": {
+    pt: "Enviando...",
+    es: "Enviando...",
+    en: "Sending...",
+  },
+  "document.queue.title": {
+    pt: "Documento na Fila",
+    es: "Documento en Cola",
+    en: "Document in Queue",
+  },
+  "document.queue.file": {
+    pt: "Arquivo:",
+    es: "Archivo:",
+    en: "File:",
+  },
+  "document.queue.size": {
+    pt: "Tamanho:",
+    es: "Tamaño:",
+    en: "Size:",
+  },
+  "document.queue.estimatedTime": {
+    pt: "Tempo Estimado:",
+    es: "Tiempo Estimado:",
+    en: "Estimated Time:",
+  },
+  "document.info.title": {
+    pt: "Informações do Arquivo",
+    es: "Información del Archivo",
+    en: "File Information",
+  },
+  "document.info.type": {
+    pt: "Tipo:",
+    es: "Tipo:",
+    en: "Type:",
+  },
+  "document.info.size": {
+    pt: "Tamanho:",
+    es: "Tamaño:",
+    en: "Size:",
+  },
+  "document.info.mimeType": {
+    pt: "MIME Type:",
+    es: "Tipo MIME:",
+    en: "MIME Type:",
+  },
+  "document.info.processingTime": {
+    pt: "Tempo de Processamento:",
+    es: "Tiempo de Procesamiento:",
+    en: "Processing Time:",
+  },
+  "document.results.title": {
+    pt: "Resultados",
+    es: "Resultados",
+    en: "Results",
+  },
+  "document.results.dimensions": {
+    pt: "Dimensões:",
+    es: "Dimensiones:",
+    en: "Dimensions:",
+  },
+  "document.results.pages": {
+    pt: "Páginas:",
+    es: "Páginas:",
+    en: "Pages:",
+  },
+  "document.results.extractedContent": {
+    pt: "Conteúdo Extraído:",
+    es: "Contenido Extraído:",
+    en: "Extracted Content:",
+  },
+  "document.results.copyContent": {
+    pt: "Copiar conteúdo",
+    es: "Copiar contenido",
+    en: "Copy content",
+  },
+  "document.error.title": {
+    pt: "Erro no Processamento:",
+    es: "Error en el Procesamiento:",
+    en: "Processing Error:",
+  },
+  "document.status.prefix": {
+    pt: "Status:",
+    es: "Estado:",
+    en: "Status:",
+  },
+  "document.status.pending": {
+    pt: "Aguardando",
+    es: "Esperando",
+    en: "Pending",
+  },
+  "document.status.processing": {
+    pt: "Processando",
+    es: "Procesando",
+    en: "Processing",
+  },
+  "document.status.completed": {
+    pt: "Concluído",
+    es: "Completado",
+    en: "Completed",
+  },
+  "document.status.failed": {
+    pt: "Falhou",
+    es: "Falló",
+    en: "Failed",
+  },
+  "document.status.unknown": {
+    pt: "Desconhecido",
+    es: "Desconocido",
+    en: "Unknown",
+  },
+
+  // Mensagens de sucesso
+  "document.success.processed": {
+    pt: "Documento processado com sucesso!",
+    es: "¡Documento procesado con éxito!",
+    en: "Document processed successfully!",
+  },
+  "document.success.queued": {
+    pt: "Documento enviado para processamento em fila!",
+    es: "¡Documento enviado para procesamiento en cola!",
+    en: "Document sent for queue processing!",
+  },
+  "document.success.retry": {
+    pt: "Documento enviado para reprocessamento!",
+    es: "¡Documento enviado para reprocesamiento!",
+    en: "Document sent for reprocessing!",
+  },
+  "document.success.download": {
+    pt: "Download iniciado!",
+    es: "¡Descarga iniciada!",
+    en: "Download started!",
+  },
+  "document.success.copied": {
+    pt: "Copiado para a área de transferência!",
+    es: "¡Copiado al portapapeles!",
+    en: "Copied to clipboard!",
+  },
+
+  // Upload de arquivos
+  "upload.title": {
+    pt: "Enviar Documento",
+    es: "Enviar Documento",
+    en: "Upload Document",
+  },
+  "upload.subtitle": {
+    pt: "Selecione um arquivo para processamento",
+    es: "Seleccione un archivo para procesamiento",
+    en: "Select a file for processing",
+  },
+  "upload.dragDrop": {
+    pt: "Clique ou arraste um arquivo",
+    es: "Haga clic o arrastre un archivo",
+    en: "Click or drag a file",
+  },
+  "upload.dragOver": {
+    pt: "Solte o arquivo aqui",
+    es: "Suelte el archivo aquí",
+    en: "Drop the file here",
+  },
+  "upload.acceptedFormats": {
+    pt: "Formatos aceitos: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX",
+    es: "Formatos aceptados: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX",
+    en: "Accepted formats: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX",
+  },
+  "upload.maxSize": {
+    pt: "Máximo: {size}MB",
+    es: "Máximo: {size}MB",
+    en: "Maximum: {size}MB",
+  },
+  "upload.fileSelected": {
+    pt: "Arquivo selecionado com sucesso",
+    es: "Archivo seleccionado con éxito",
+    en: "File selected successfully",
+  },
+  "upload.fileTypeError": {
+    pt: "Tipo de arquivo não suportado. Formatos aceitos: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX",
+    es: "Tipo de archivo no soportado. Formatos aceptados: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX",
+    en: "File type not supported. Accepted formats: JPG, PNG, GIF, WEBP, PDF, TXT, DOC, DOCX",
+  },
+  "upload.fileSizeError": {
+    pt: "Arquivo muito grande. Máximo permitido: {size}MB",
+    es: "Archivo demasiado grande. Máximo permitido: {size}MB",
+    en: "File too large. Maximum allowed: {size}MB",
+  },
+  "upload.instructions": {
+    pt: "Instruções de Upload",
+    es: "Instrucciones de Carga",
+    en: "Upload Instructions",
+  },
+  "upload.instructions.text": {
+    pt: "Para processar um documento, siga estes passos:",
+    es: "Para procesar un documento, siga estos pasos:",
+    en: "To process a document, follow these steps:",
+  },
+  "upload.step1": {
+    pt: "1. Selecione um arquivo dos formatos aceitos",
+    es: "1. Seleccione un archivo de los formatos aceptados",
+    en: "1. Select a file from accepted formats",
+  },
+  "upload.step2": {
+    pt: "2. Verifique se o arquivo não excede 5MB",
+    es: "2. Verifique que el archivo no exceda 5MB",
+    en: "2. Verify the file doesn't exceed 5MB",
+  },
+  "upload.step3": {
+    pt: "3. Clique em 'Processar Documento' para iniciar",
+    es: "3. Haga clic en 'Procesar Documento' para comenzar",
+    en: "3. Click 'Process Document' to start",
+  },
+  "upload.supportedTypes": {
+    pt: "Tipos de Arquivo Suportados",
+    es: "Tipos de Archivo Soportados",
+    en: "Supported File Types",
+  },
+  "upload.images": {
+    pt: "Imagens: JPG, PNG, GIF, WEBP",
+    es: "Imágenes: JPG, PNG, GIF, WEBP",
+    en: "Images: JPG, PNG, GIF, WEBP",
+  },
+  "upload.documents": {
+    pt: "Documentos: PDF, TXT, DOC, DOCX",
+    es: "Documentos: PDF, TXT, DOC, DOCX",
+    en: "Documents: PDF, TXT, DOC, DOCX",
   },
 
   // Mensagens globais
