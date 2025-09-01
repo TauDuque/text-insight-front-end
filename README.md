@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📄 Text Insight - Frontend
 
-## Getting Started
+Frontend da aplicação **Text Insight**, um sistema de processamento de documentos com interface moderna e responsiva.
 
-First, run the development server:
+## 🚀 Funcionalidades
+
+### **Processamento de Documentos**
+
+- Upload de arquivos (JPG, PNG, PDF, TXT, DOC, DOCX)
+- Extração de texto e metadados
+- Processamento otimizado em memória
+- Interface drag & drop intuitiva
+
+### **Análise de Texto**
+
+- Análise linguística completa
+- Detecção de sentimento
+- Análise de legibilidade
+- Extração de palavras-chave e entidades
+
+### **Interface Moderna**
+
+- Design responsivo
+- Sistema de autenticação
+- Estatísticas em tempo real
+- Histórico de processamentos
+
+## 🛠️ Tecnologias
+
+- **Next.js 14** - Framework React
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Estilização
+- **Lucide React** - Ícones
+- **Axios** - Cliente HTTP
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+
+- Node.js 18+
+- Backend rodando na porta 3001
+
+### Instalação
 
 ```bash
+# Instalar dependências
+npm install
+
+# Executar em desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build para produção
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000) para ver a aplicação.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Estrutura do Projeto
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── dashboard/         # Página principal
+│   ├── login/            # Autenticação
+│   └── register/         # Registro
+├── components/           # Componentes React
+│   ├── TextAnalyzer.tsx  # Analisador de texto
+│   ├── Layout.tsx        # Layout principal
+│   └── QueueStats.tsx    # Estatísticas
+├── contexts/             # Contextos React
+│   ├── AuthContext.tsx   # Autenticação
+│   └── LanguageContext.tsx # Internacionalização
+├── hooks/                # Hooks customizados
+├── services/             # Serviços de API
+└── types/                # Tipos TypeScript
+```
 
-## Learn More
+## 🔧 Configuração
 
-To learn more about Next.js, take a look at the following resources:
+### Variáveis de Ambiente
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Crie um arquivo `.env.local`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
 
-## Deploy on Vercel
+## 📱 Responsividade
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+A aplicação é totalmente responsiva e funciona em:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 📱 Dispositivos móveis
+- 📱 Tablets
+- 💻 Desktops
+
+## 🎨 Design System
+
+- **Cores**: Paleta consistente com Tailwind CSS
+- **Tipografia**: Hierarquia clara e legível
+- **Componentes**: Reutilizáveis e modulares
+- **Ícones**: Lucide React para consistência
+
+## 🚀 Deploy
+
+### Vercel (Recomendado)
+
+```bash
+# Deploy automático via GitHub
+git push origin main
+```
+
+### Outras Plataformas
+
+```bash
+# Build estático
+npm run build
+npm run export
+```
+
+## 📚 Documentação
+
+- [Next.js Docs](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [TypeScript](https://www.typescriptlang.org/docs)
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Push para a branch
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
