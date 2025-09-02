@@ -1,18 +1,10 @@
 "use client";
 
-import { useAuth } from "@/contexts/AuthContext";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "@/components/Layout";
 import Loading from "@/components/Loading";
-import {
-  BarChart3,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  XCircle,
-  FileText,
-} from "lucide-react";
+import { BarChart3, Clock, CheckCircle, XCircle, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Document } from "@/types/document";
 import { documentService } from "@/services/documentService";
@@ -29,7 +21,6 @@ interface StatsData {
 }
 
 export default function StatsPage() {
-  const { user } = useAuth();
   const { isAuthenticated, loading } = useAuthGuard();
   const { t } = useLanguage();
   const [stats, setStats] = useState<StatsData | null>(null);

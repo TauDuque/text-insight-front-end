@@ -1,6 +1,4 @@
 "use client";
-
-import { useAuth } from "@/contexts/AuthContext";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "@/components/Layout";

@@ -18,6 +18,7 @@ export interface Document {
   completed_at?: string;
   processedAt?: string;
   userId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: any;
 }
 
