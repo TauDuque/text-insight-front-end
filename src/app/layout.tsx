@@ -9,7 +9,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DocumentInsight API",
+  title: "Document-Insight API",
   description: "Análise inteligente de texto com IA",
 };
 

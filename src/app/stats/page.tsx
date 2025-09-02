@@ -42,7 +42,8 @@ export default function StatsPage() {
         setLoadingStats(true);
         // TODO: Implementar endpoint de estatísticas no backend
         // Por enquanto, vamos buscar documentos e calcular estatísticas básicas
-        const { documents } = await documentService.getUserDocuments();
+        const response = await documentService.getUserDocuments();
+        const documents = response?.documents || [];
 
         const stats: StatsData = {
           totalDocuments: documents.length,

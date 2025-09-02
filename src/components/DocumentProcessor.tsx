@@ -56,7 +56,7 @@ export default function DocumentProcessor() {
     setQueueResponse(null);
 
     try {
-      // Upload do documento para processamento
+      // Upload do documento para processamento em fila
       const queueResult = await documentService.uploadDocument(selectedFile);
       setQueueResponse(queueResult);
 

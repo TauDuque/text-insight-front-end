@@ -436,6 +436,11 @@ const translations: Record<string, Record<Language, string>> = {
     es: "Documento",
     en: "Document",
   },
+  "history.table.jobId": {
+    pt: "Job ID",
+    es: "Job ID",
+    en: "Job ID",
+  },
   "history.table.status": {
     pt: "Status",
     es: "Estado",
@@ -458,7 +463,7 @@ const translations: Record<string, Record<Language, string>> = {
   },
   "history.table.actions": {
     pt: "Ações",
-    es: "Acciones",
+    es: "Accion",
     en: "Actions",
   },
 

@@ -14,7 +14,7 @@ export class DocumentService {
         "Content-Type": "multipart/form-data",
       },
     });
-    return response.data.data;
+    return response.data;
   }
 
   /**

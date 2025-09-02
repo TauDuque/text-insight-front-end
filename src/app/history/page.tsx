@@ -18,6 +18,8 @@ interface DocumentHistory {
   completedAt?: string;
   size: number;
   type: string;
+  job_id?: string;
+  jobId?: string;
 }
 
 export default function HistoryPage() {
@@ -31,7 +33,7 @@ export default function HistoryPage() {
       try {
         setLoadingHistory(true);
         const response = await documentService.getUserDocuments(1, 1000);
-        const documents = response.documents || [];
+        const documents = response?.documents || [];
 
         // Converter para o formato DocumentHistory
         const historyDocuments: DocumentHistory[] = documents.map(
@@ -40,9 +42,11 @@ export default function HistoryPage() {
             originalName: doc.originalName,
             status: doc.status,
             createdAt: doc.createdAt,
-            completedAt: doc.completedAt,
+            completedAt: doc.completed_at || doc.completedAt || doc.processedAt,
             size: doc.size,
             type: doc.mimeType,
+            job_id: doc.job_id,
+            jobId: doc.jobId,
           })
         );
 
@@ -156,6 +160,9 @@ export default function HistoryPage() {
                         {t("history.table.document")}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("history.table.jobId")}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         {t("history.table.status")}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -187,6 +194,11 @@ export default function HistoryPage() {
                               </div>
                             </div>
                           </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {doc.job_id || doc.jobId || "N/A"}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">

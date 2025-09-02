@@ -1,6 +1,7 @@
 export interface Document {
   id: string;
   jobId?: string;
+  job_id?: string;
   originalName: string;
   filename: string;
   filePath?: string;
@@ -14,7 +15,10 @@ export interface Document {
   processingTime?: number;
   createdAt: string;
   completedAt?: string;
+  completed_at?: string;
+  processedAt?: string;
   userId: string;
+  metadata?: any;
 }
 
 export interface DocumentResults {
